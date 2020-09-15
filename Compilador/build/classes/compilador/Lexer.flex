@@ -20,7 +20,13 @@ import java_cup.runtime.Symbol;
 
 main = "int_main()"
 begin = "begin"
-end = ("end main"|"end loop"|"end for"|"end if"|"end else"|"end options"|"end func")
+endm = "end main"
+endl = "end loop"
+endf = "end for"
+endi = "end if"
+ende = "end else"
+endo = "end options"
+endfu = "end func"
 print = "print"
 not = "!"
 else = "else"
@@ -64,7 +70,13 @@ valor = ({int}|{char}|{bool})
         {not} {return new Symbol(sym.NOT, yyline, yycolumn,yytext());}
         {string} {return new Symbol(sym.STRING, yyline, yycolumn,yytext());}
         {begin} {return new Symbol(sym.BEGIN, yyline, yycolumn,yytext());}
-        {end} {return new Symbol(sym.END, yyline, yycolumn,yytext());}
+        {endi} {return new Symbol(sym.ENDI, yyline, yycolumn,yytext());}
+        {ende} {return new Symbol(sym.ENDE, yyline, yycolumn,yytext());}
+        {endo} {return new Symbol(sym.ENDO, yyline, yycolumn,yytext());}
+        {endm} {return new Symbol(sym.ENDM, yyline, yycolumn,yytext());}
+        {endl} {return new Symbol(sym.ENDL, yyline, yycolumn,yytext());}
+        {endf} {return new Symbol(sym.ENDF, yyline, yycolumn,yytext());}
+        {endfu} {return new Symbol(sym.ENDFU, yyline, yycolumn,yytext());}
         {print} {return new Symbol(sym.PRINT, yyline, yycolumn,yytext());}
         {else} {return new Symbol(sym.ELSE, yyline, yycolumn,yytext());}
 	{andor} {return new Symbol(sym.ANDOR, yyline, yycolumn,yytext());}

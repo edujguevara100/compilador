@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,15 +78,8 @@ public class Interfaz extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             AnalizadorLexico lexico = new AnalizadorLexico(new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/teste.txt"));
-            parser parser = new parser(lexico);
-            parser.parse();
             String result = "";
-            if(!parser.error.equals("")){
-                System.out.println(parser.error);
-            }else{
-                System.out.println("Sin Errores");
-            }
-            /*ArrayList<Token> tokens = new ArrayList<Token>();
+            ArrayList<Token> tokens = new ArrayList<Token>();
             while (true) {
                 Symbol tok = lexico.next_token();
                 if (tok.sym == sym.EOF) {
@@ -95,22 +89,31 @@ public class Interfaz extends javax.swing.JFrame {
                     }else{
                         System.out.println("No se encontraron errores lexicos");
                     }
-                    System.out.println("Analisis Sintactico");
-                    par.parse();
-                    if (!par.error.equals("")) {
-                        System.out.println(par.error);
-                    }else{
-                        System.out.println("No se encontraron errores lexicos");
-                    }
                     break;
                 } else {
-                    tokens.add(new Token(tok.value.toString(), tok.sym));
+                    if(tok.sym != sym.error){
+                        tokens.add(new Token(tok.value.toString(), tok.sym));
+                    }
+                    
                 }
             }
-
-            /*for (int i = 0; i < tokens.size(); i++) {
-                System.out.println("<Token: " + tokens.get(i).token+", Valor: "+tokens.get(i).valor+">");
-            }*/
+            if(!lexico.error.equals("")){
+                File file = new File("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correcion.txt");
+                FileWriter f = new FileWriter("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
+                for (int i = 0; i < tokens.size(); i++) {
+                    result += tokens.get(i).valor + " ";
+                }
+                f.write(result);
+                f.close();
+                lexico = new AnalizadorLexico(new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt"));
+            }else{
+                lexico = new AnalizadorLexico(new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/teste.txt"));
+            }
+            parser parser = new parser(lexico);
+            parser.parse();
+            if(!parser.error.equals("")){
+                System.out.println(parser.error);
+            }
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }
@@ -147,7 +150,7 @@ public class Interfaz extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                generateLexer();
+                //generateLexer();
                 new Interfaz().setVisible(true);
             }
         });
