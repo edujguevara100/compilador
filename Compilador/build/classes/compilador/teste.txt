@@ -1,0 +1,29 @@
+func int _funcion (int _a, char _b, bool _t) begin
+	int _i = 3, _j, _c = 2;
+	_i = 2;
+	if ((_i > _j) & true | false) begin
+		if(true) begin
+			_i = 2;
+		end if	
+	end if
+	else if(true) begin
+		for(int _i -> 2, _i ++) begin
+		end for
+	end else
+	return _i;
+end func
+func int_main() begin
+	loop (true & false | !(_b)) begin
+	end loop
+	options (_i , int) begin
+		opt ('a'){
+			_i = 2;
+			print(true);
+		}
+		opt_def {
+			_j = 3;
+		}
+	end options
+	return 0;
+end main
+
