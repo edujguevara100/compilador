@@ -10,6 +10,14 @@ func int _funcion (int _a, char _b, bool _t) begin
 		for(int _i -> 2, _i ++) begin
 		end for
 	end else
+        else if(false) begin
+        end else
+        else begin
+        end else
+        if(false) begin
+        end if
+        else begin
+        end else
         return _i;
 end func
 func int_main() begin

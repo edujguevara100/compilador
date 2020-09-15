@@ -94,7 +94,6 @@ public class Interfaz extends javax.swing.JFrame {
                     if(tok.sym != sym.error){
                         tokens.add(new Token(tok.value.toString(), tok.sym));
                     }
-                    
                 }
             }
             if(!lexico.error.equals("")){
@@ -109,6 +108,8 @@ public class Interfaz extends javax.swing.JFrame {
             }else{
                 lexico = new AnalizadorLexico(new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/teste.txt"));
             }
+            System.out.println("");
+            System.out.println("Analisis Sintactico");
             parser parser = new parser(lexico);
             parser.parse();
             if(!parser.error.equals("")){
