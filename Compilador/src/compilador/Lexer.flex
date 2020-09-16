@@ -45,31 +45,37 @@ data_type = (int|char|bool|array_int|array_char|array_bool|matrix_int|matrix_cha
 func = "func"
 if = "if"
 palabra = [a-zA-Z]+
-letra = [a-zA-Z ]
+letra = [a-zA-Z]
 int = -?[0-9]+
 id = "_"({letra}|{int})+
 bool = ("true"|"false")
 char = '[0-9a-zA-Z ]'
 string = \"({palabra}|{int}|{espacio})+\"
 espacio = [ \n\r\t]
+
 oppar = "("
 cerrarpar = ")"
+abrecor = "["
+cierracor = "]"
+
 for = "for"
 options = "options"
 option = "opt"
 defaultOption = "opt_def"
 loop = "loop"
+
 abreComment = "/*"
 cierraComment = "*/"
-valor = ({int}|{char}|{bool})
 %%
 <YYINITIAL> {
 	{abreComment} {yybegin(comment);}
         {id} {return new Symbol(sym.ID, yyline, yycolumn,yytext());}
-        {valor} {return new Symbol(sym.VALOR, yyline, yycolumn,yytext());}
         {not} {return new Symbol(sym.NOT, yyline, yycolumn,yytext());}
         {string} {return new Symbol(sym.STRING, yyline, yycolumn,yytext());}
         {begin} {return new Symbol(sym.BEGIN, yyline, yycolumn,yytext());}
+        {int} {return new Symbol(sym.INT, yyline, yycolumn,yytext());}
+        {char} {return new Symbol(sym.CHAR, yyline, yycolumn,yytext());}
+        {bool} {return new Symbol(sym.BOOL, yyline, yycolumn,yytext());}
         {endi} {return new Symbol(sym.ENDI, yyline, yycolumn,yytext());}
         {ende} {return new Symbol(sym.ENDE, yyline, yycolumn,yytext());}
         {endo} {return new Symbol(sym.ENDO, yyline, yycolumn,yytext());}
@@ -100,6 +106,8 @@ valor = ({int}|{char}|{bool})
 	{func} {return new Symbol(sym.FUNC, yyline, yycolumn,yytext());}
 	{if} {return new Symbol(sym.IF, yyline, yycolumn,yytext());}
 	{espacio} {}	
+        {abrecor} {return new Symbol(sym.ABRECOR, yyline, yycolumn,yytext());}
+        {cierracor} {return new Symbol(sym.CIERRACOR, yyline, yycolumn,yytext());}
 	{oppar} {return new Symbol(sym.ABREPAR, yyline, yycolumn,yytext());}
 	{cerrarpar} {return new Symbol(sym.CIERRAPAR, yyline, yycolumn,yytext());}
         {letra} {error += "No se esperaba la letra: " + yytext() + " linea: " + yyline + " columna: "+yycolumn + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());}

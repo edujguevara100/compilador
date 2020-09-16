@@ -4,100 +4,85 @@ import java_cup.runtime.Symbol;
 parser code 
 {:
     public String error = "";
-    public void report_error(String msj, Object o){
-      StringBuffer errorHead = new StringBuffer("Error Sintactico");
-      if(o instanceof java_cup.runtime.Symbol){
-        java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) o);
-        if (s.left >= 0) {
-          errorHead.append(" en la linea: "+(s.right+1));
-          if (s.right >= 0){
-            errorHead.append(", columna: "+(s.left+1));
-          }
-        }
-        errorHead.append(" en el token: "+(s.value));
-        errorHead.append(" -> "+msj);
-      }
-    System.out.println(errorHead);
+    public void syntax_error(Symbol s){
+        error += "Error de sintaxis no se esperaba: "+ s.value +", en la linea: "+(s.left+1)+", columna: "+(s.right+1)+"\n";
     }
-    
-    public void syntax_error(Symbol cur_token){
-        System.out.printf("Error en linea:%d, columna:%d, se encontro el token:%s \n",
-        cur_token.right+1,
-        cur_token.left+1,
-        cur_token.value);
+
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        System.out.println("El programa contiene errores sintacticos no puede seguir");
     }
 :}; 
 
 terminal ANDOR, OPREL, LOOP, MAIN, FOR, OPTIONS, OPT, DEFOPT, BEGIN, 
-    ENDM, ENDO, ENDI, ENDE, ENDF, ENDFU, ENDL, FINLINE, ABRE, CIERRA, HASTA, ASIG, OPMD, OPSR, COMA, RETURN, 
-    TYPE, FUNC, IF, ID, ABREPAR, CIERRAPAR, ELSE, PRINT, VALOR, STRING, NOT;
+    ENDM, ENDO, ENDI, ENDE, ENDF, ENDFU, ENDL, FINLINE, ABRE, CIERRA, HASTA, ASIG, OPMD, OPSR, 
+    COMA, RETURN, TYPE, FUNC, IF, ID, ABREPAR, CIERRAPAR, ELSE, PRINT, INT, CHAR, BOOL, STRING, 
+    NOT, ABRECOR, CIERRACOR;
 
 non terminal FUNCION, FUNCION2, DECLARACION, ASIGNACION, IFCOND, ELSECOND, FORCOND,
     LOOPCOND, OPTIONSCOND, MAINCOND, PRINTCOND, OPERACION, CONDICION, 
     CODE, LISTAPARAM, LISTATYPES, DECL, DECL2, OPTT, PRINTER, OP1, 
-    OP2, COND1, COND2, COND3, RETORNO, FUNCION1;
+    OP2, COND1, COND2, COND3, RETORNO, VALOR, ARREGLO, MATRIZ, VALOR1, OPTT2,
+    ARREGLO1, MATRIZ1, VALORO;
 
+precedence left OPMD;
+precedence left OPSR;
 start with MAINCOND;
 
-FUNCION1 ::= FUNCION | ;
-FUNCION ::=  FUNCION1 FUNCION2;
-FUNCION2 ::= FUNC TYPE ID ABREPAR LISTAPARAM CIERRAPAR BEGIN CODE RETORNO ENDFU
-             | FUNC error {: System.out.println("Error en la declaracion de la funcion"); :};
+FUNCION ::=  FUNCION FUNCION2 | ;
+FUNCION2 ::= FUNC TYPE ID ABREPAR LISTAPARAM CIERRAPAR BEGIN CODE RETORNO ENDFU;
 
 LISTAPARAM ::= TYPE ID | LISTATYPES COMA TYPE ID | ;
 
 LISTATYPES ::= LISTATYPES COMA TYPE ID | TYPE ID;
 
-MAINCOND ::= FUNCION1 FUNC MAIN BEGIN CODE RETORNO ENDM
-             | error {: System.out.println("Error en la declaracion del MAIN"); :};
+MAINCOND ::= FUNCION FUNC MAIN BEGIN CODE RETORNO ENDM;
 
-DECLARACION ::= TYPE DECL FINLINE
-                | TYPE DECL error {: System.out.println("Error en la declaracion"); :};
+DECLARACION ::= TYPE DECL FINLINE;
 
 DECL ::= DECL COMA ID DECL2 | ID DECL2;
-DECL2 ::= ASIG OPERACION | ;
+DECL2 ::= ASIG VALORO |  ;
 
-ASIGNACION ::= ID ASIG OPERACION FINLINE
-               | ID ASIG OPERACION error {: System.out.println("Error en la asignacion"); :};
 
-IFCOND ::= IF ABREPAR CONDICION CIERRAPAR BEGIN CODE ENDI
-           | IF error {: System.out.println("Error en el IF"); :};
+ASIGNACION ::= ID ASIG VALORO FINLINE;
+
+IFCOND ::= IF ABREPAR CONDICION CIERRAPAR BEGIN CODE ENDI;
 
 ELSECOND ::= ELSE IF ABREPAR CONDICION CIERRAPAR BEGIN CODE ENDE ELSECOND
-             | ELSE BEGIN CODE ENDE
-             | ELSE error {: System.out.println("Error en el ELSE"); :};
+             | ELSE BEGIN CODE ENDE;
 
-FORCOND ::= FOR ABREPAR TYPE ID HASTA OPERACION COMA ID OPSR OPSR CIERRAPAR BEGIN CODE ENDF
-            | FOR error {: System.out.println("Error en el FOR"); :};
+FORCOND ::= FOR ABREPAR TYPE ID HASTA OPERACION COMA ID OPSR OPSR CIERRAPAR BEGIN CODE ENDF;
 
-LOOPCOND ::= LOOP ABREPAR CONDICION CIERRAPAR BEGIN CODE ENDL
-             | LOOP error {: System.out.println("Error en el LOOP"); :};
+LOOPCOND ::= LOOP ABREPAR CONDICION CIERRAPAR BEGIN CODE ENDL;
 
-OPTIONSCOND ::= OPTIONS ABREPAR ID COMA TYPE CIERRAPAR BEGIN OPTT ENDO
-                | OPTIONS error {: System.out.println("Error en OPTIONS"); :};
+OPTIONSCOND ::= OPTIONS ABREPAR ID COMA TYPE CIERRAPAR BEGIN OPTT ENDO;
 
-OPTT ::= OPT ABREPAR VALOR CIERRAPAR ABRE CODE CIERRA OPTT | DEFOPT ABRE CODE CIERRA
-         | OPT error {: System.out.println("Error en OPT"); :};
+OPTT ::= OPT ABRECOR OPTT2 CIERRACOR ABRE CODE CIERRA OPTT | DEFOPT ABRE CODE CIERRA;
+OPTT2 ::= VALORO;
 
-PRINTCOND ::= PRINT ABREPAR PRINTER CIERRAPAR FINLINE
-              | PRINT error {: System.out.println("Error en el PRINT"); :};
-
-PRINTER ::= OPERACION | STRING;
+PRINTCOND ::= PRINT ABREPAR PRINTER CIERRAPAR FINLINE;
+PRINTER ::= VALORO | STRING;
 
 OPERACION ::= OPERACION OPSR OP1 | OP1;
 OP1 ::= OP1 OPMD OP2 | OP2;
-OP2 ::= VALOR | ID | ABREPAR OPERACION CIERRAPAR;
+OP2 ::= INT | ID | ABREPAR OPERACION CIERRAPAR;
 
 CONDICION ::= CONDICION OPREL COND1 | COND1;
 COND1 ::= COND1 ANDOR COND2 | COND2;
-COND2 ::= COND3 ABREPAR CONDICION CIERRAPAR | VALOR | ID;
+COND2 ::= COND3 ABREPAR CONDICION CIERRAPAR | BOOL | ID;
 COND3 ::= NOT | ; 
 
 CODE ::= DECLARACION CODE | ASIGNACION CODE | IFCOND CODE | IFCOND ELSECOND CODE
-         | FORCOND CODE | LOOPCOND CODE | OPTIONSCOND CODE | PRINTCOND CODE;
+         | FORCOND CODE | LOOPCOND CODE | OPTIONSCOND CODE | PRINTCOND CODE | ;
 
+RETORNO ::= RETURN VALORO FINLINE;
 
-RETORNO ::= RETURN OPERACION FINLINE
-            | RETURN error {: System.out.println("Error en el RETURN"); :};
+ARREGLO ::= ABREPAR ARREGLO1 CIERRAPAR;
+ARREGLO1 ::= ARREGLO1 COMA VALOR1 | VALOR1;
 
+MATRIZ ::= ABREPAR MATRIZ1 CIERRAPAR;
+MATRIZ1 ::= MATRIZ1 COMA ARREGLO | ARREGLO;
+
+VALOR1 ::= CHAR | BOOL;
+VALOR ::= MATRIZ | ARREGLO | VALOR1;
+VALORO ::= VALOR | OPERACION;
 

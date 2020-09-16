@@ -1,9 +1,12 @@
 func int _funcion (int _a, char _b, bool _t) begin
-	char _i = 3, _j, _c = 2;
-	_i = 2;
+	char _i = 3, _j, _c = 2+2;
+        matrix_int _k = ((true, false, true), (true));
+        array_char _l = ('a'), _h, _g = ('a', 'b', 'c');
+	_i = 2+_b;
+        _j = ((true, false, true), (true));
 	if ((_i > _j) & true | false) begin
 		if(true) begin
-			_i = 2;
+			_i = 2*5/2+3;
 		end if	
 	end if
 	else if(true) begin
@@ -24,7 +27,7 @@ func int_main() begin
 	loop (true & false | !(_b)) begin
 	end loop
 	options (_i , int) begin
-		opt ('a'){
+		opt [1]{
 			_i = 2;
 			print(true);
 		}
