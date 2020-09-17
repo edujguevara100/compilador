@@ -115,7 +115,7 @@ public class Interfaz extends javax.swing.JFrame {
             if(!parser.error.equals("")){
                 System.out.println(parser.error);
             }else{
-                System.out.println("No se encontraron errores lexicos");
+                System.out.println("No se encontraron errores sintacticos");
             }
         } catch (Exception ex) {
             System.out.println(ex.toString());
@@ -154,7 +154,6 @@ public class Interfaz extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 //generateLexer();
-                System.out.println("NOTE TO SELF, INCLUIR EN LAS GRAMATICAS LOS ARREGLOS Y MATRIZES Y SEPARAR VALOR");
                 new Interfaz().setVisible(true);
             }
         });
