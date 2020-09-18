@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
+import javax.swing.JFileChooser;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 
 /**
  *
@@ -26,8 +31,11 @@ public class Interfaz extends javax.swing.JFrame {
      */
     public Interfaz() {
         initComponents();
+        panel2.setVisible(false);
     }
-
+    public static FileReader fr = null, fr2 = null;
+    public static Node root;
+    DefaultMutableTreeNode arbol;
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -37,92 +45,163 @@ public class Interfaz extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        panel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        bt_analizar = new javax.swing.JButton();
+        bt_arbol = new javax.swing.JButton();
+        panel2 = new javax.swing.JPanel();
+        scroll = new javax.swing.JScrollPane();
+        jtree = new javax.swing.JTree();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setText("Seleccionar Archivo:");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 50, -1, -1));
+        panel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 50, -1, -1));
 
         jButton1.setText("Buscar");
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 80, -1, -1));
-
-        jButton2.setText("Analizar");
-        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton2MouseClicked(evt);
+                jButton1MouseClicked(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 180, -1, -1));
+        panel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 80, -1, -1));
+
+        bt_analizar.setText("Analizar");
+        bt_analizar.setEnabled(false);
+        bt_analizar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bt_analizarMouseClicked(evt);
+            }
+        });
+        panel1.add(bt_analizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, -1, -1));
+
+        bt_arbol.setText("Ver Arbol");
+        bt_arbol.setEnabled(false);
+        bt_arbol.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bt_arbolMouseClicked(evt);
+            }
+        });
+        panel1.add(bt_arbol, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 180, -1, -1));
+
+        panel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
+        jtree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        scroll.setViewportView(jtree);
+
+        panel2.add(scroll, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 550, 370));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panel1, javax.swing.GroupLayout.PREFERRED_SIZE, 502, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(panel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panel1, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(panel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
-        try {
-            // TODO add your handling code here:
-            AnalizadorLexico lexico = new AnalizadorLexico(new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/teste.txt"));
-            String result = "";
-            ArrayList<Token> tokens = new ArrayList<Token>();
-            while (true) {
-                Symbol tok = lexico.next_token();
-                if (tok.sym == sym.EOF) {
-                    System.out.println("Analisis Lexico");
-                    if (!lexico.error.equals("")) {
-                        System.out.println(lexico.error);
-                    }else{
-                        System.out.println("No se encontraron errores lexicos");
+    private void bt_analizarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_analizarMouseClicked
+        if (bt_analizar.isEnabled()) {
+            try {
+                // TODO add your handling code here:
+                AnalizadorLexico lexico = new AnalizadorLexico(fr);
+                String result = "";
+                ArrayList<Token> tokens = new ArrayList<Token>();
+                while (true) {
+                    Symbol tok = lexico.next_token();
+                    if (tok.sym == sym.EOF) {
+                        System.out.println("Analisis Lexico");
+                        if (!lexico.error.equals("")) {
+                            System.out.println(lexico.error);
+                        } else {
+                            System.out.println("No se encontraron errores lexicos");
+                        }
+                        break;
+                    } else {
+                        if (tok.sym != sym.error) {
+                            tokens.add(new Token(tok.value.toString(), tok.sym));
+                        }
                     }
-                    break;
+                }
+                if (!lexico.error.equals("")) {
+                    File file = new File("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correcion.txt");
+                    FileWriter f = new FileWriter("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
+                    for (int i = 0; i < tokens.size(); i++) {
+                        result += tokens.get(i).valor + " ";
+                    }
+                    f.write(result);
+                    f.close();
+                    fr2 = new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
+                }
+                lexico = new AnalizadorLexico(fr2);
+                System.out.println("");
+                System.out.println("Analisis Sintactico");
+                parser parser = new parser(lexico);
+                parser.parse();
+                if (!parser.error.equals("")) {
+                    System.out.println(parser.error);
                 } else {
-                    if(tok.sym != sym.error){
-                        tokens.add(new Token(tok.value.toString(), tok.sym));
-                    }
+                    System.out.println("No se encontraron errores sintacticos");
+                    root = parser.raiz;
+                    //parser.raiz.recorrido(parser.raiz, 0);
+                    bt_arbol.setEnabled(true);
                 }
+            } catch (Exception ex) {
+                System.out.println(ex.toString());
             }
-            if(!lexico.error.equals("")){
-                File file = new File("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correcion.txt");
-                FileWriter f = new FileWriter("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
-                for (int i = 0; i < tokens.size(); i++) {
-                    result += tokens.get(i).valor + " ";
-                }
-                f.write(result);
-                f.close();
-                lexico = new AnalizadorLexico(new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt"));
-            }else{
-                lexico = new AnalizadorLexico(new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/teste.txt"));
-            }
-            System.out.println("");
-            System.out.println("Analisis Sintactico");
-            parser parser = new parser(lexico);
-            parser.parse();
-            if(!parser.error.equals("")){
-                System.out.println(parser.error);
-            }else{
-                System.out.println("No se encontraron errores sintacticos");
+        }
+    }//GEN-LAST:event_bt_analizarMouseClicked
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+        try {
+            JFileChooser file = new JFileChooser();
+            file.showOpenDialog(this);
+            File abre = file.getSelectedFile();
+            if (abre != null) {
+                fr = new FileReader(abre);
+                fr2 = new FileReader(abre);
+                bt_analizar.setEnabled(true);
             }
         } catch (Exception ex) {
-            System.out.println(ex.toString());
+            System.out.println("ERROR AL ABRIR ARCHIVO");
         }
-        
-    }//GEN-LAST:event_jButton2MouseClicked
+    }//GEN-LAST:event_jButton1MouseClicked
 
+    private void bt_arbolMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_arbolMouseClicked
+        // TODO add your handling code here:
+        if (bt_arbol.isEnabled()) {
+            panel1.setVisible(false);
+            arbol = new DefaultMutableTreeNode(root);
+            DefaultTreeModel modelo = (DefaultTreeModel)jtree.getModel();
+            llenar(root, arbol);
+            modelo.setRoot(arbol);
+            jtree.setModel(modelo);
+            panel2.setVisible(true);
+        }
+    }//GEN-LAST:event_bt_arbolMouseClicked
+
+    public static void llenar(Node root, DefaultMutableTreeNode current){
+        for (int i = 0; i < root.hijos.size(); i++) {
+            current.add(new DefaultMutableTreeNode(root.hijos.get(i)));
+            if(!root.hijos.get(i).hijos.isEmpty()){
+                llenar(root.hijos.get(i), (DefaultMutableTreeNode)current.getChildAt(i));
+            }
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -153,7 +232,7 @@ public class Interfaz extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                //generateLexer();
+                generateLexer();
                 new Interfaz().setVisible(true);
             }
         });
@@ -176,9 +255,13 @@ public class Interfaz extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bt_analizar;
+    private javax.swing.JButton bt_arbol;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JTree jtree;
+    private javax.swing.JPanel panel1;
+    private javax.swing.JPanel panel2;
+    private javax.swing.JScrollPane scroll;
     // End of variables declaration//GEN-END:variables
 }

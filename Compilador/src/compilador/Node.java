@@ -28,9 +28,9 @@ public class Node {
         hijos = new ArrayList();
     }
 
-    public void addNode(Object node){
-        if (node != null) {
-            hijos.add((Node)node);
+    public void addNode(Object root){
+        if (root != null) {
+            hijos.add((Node)root);
         }        
     }
     
@@ -58,14 +58,31 @@ public class Node {
         this.hijos = hijos;
     }        
 
-    
+    public void recorrido(Node root, int espacio){
+        if (!root.hijos.isEmpty()) {
+            for (int i = 0; i < espacio; i++) {
+                System.out.print("\t");
+            }
+            System.out.println(root);
+
+            recorrido(root.hijos.get(0), espacio+1);
+            for (int i = 1; i < root.hijos.size(); i++) {
+                recorrido(root.hijos.get(i), espacio+1);
+            }
+        } else {
+            for (int i = 0; i < espacio; i++) {
+                System.out.print("\t");
+            }
+            System.out.println(root);
+        }
+    }
     
     @Override
     public String toString() {
         if (valor.equals("<non-terminal>")) {
             return nombre;
         }else{
-            return nombre+" -- "+valor;
+            return valor;
         }
     }
     
