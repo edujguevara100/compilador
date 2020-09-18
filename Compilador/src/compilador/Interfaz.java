@@ -153,6 +153,7 @@ public class Interfaz extends javax.swing.JFrame {
                 parser.parse();
                 if (!parser.error.equals("")) {
                     System.out.println(parser.error);
+                    bt_analizar.setEnabled(false);
                 } else {
                     System.out.println("No se encontraron errores sintacticos");
                     root = parser.raiz;
@@ -232,7 +233,7 @@ public class Interfaz extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                generateLexer();
+                //generateLexer();
                 new Interfaz().setVisible(true);
             }
         });
