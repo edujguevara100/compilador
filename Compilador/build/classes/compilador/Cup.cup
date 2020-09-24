@@ -6,13 +6,16 @@ parser code
     public String error = "";
     public Symbol found;
     public Node raiz;
-    public void syntax_error(Symbol s){
-        found = s;
-        error += "Se encontro: "+ s.value +", en la linea: "+(s.left+1)+", columna: "+(s.right+1)+"\n";
+    public void report_error(String errorBody, Object info){
+        found = (Symbol)info;
+	//System.out.println("Se encontro: " + found.value);
     }
 
-    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
-        System.out.println("El programa contiene errores sintacticos no puede seguir");
+    public void report_fatal_error(String errorBody, Object info){ 
+        error = "Errores no Recuperables";
+        found = (Symbol)info;
+	System.out.println("Se encontro: " + found.value);
+	System.out.println("No se esperaba el Token");
     }
 
     public void Func_Error(){
@@ -39,6 +42,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: end func");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     public void If_Error(){
         switch(found.sym){
@@ -58,9 +62,11 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: end if");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     public void Else_Error(){
         System.out.println("Error en el Else");
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     
     public void Loop_Error(){
@@ -81,6 +87,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: end loop");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
 
     public void For_Error(){
@@ -116,6 +123,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: end for");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
 
     public void Options_Error(){
@@ -145,6 +153,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: end options");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     public void Print_Error(){
         switch(found.sym){
@@ -161,6 +170,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: ;");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     /*public void Llamado_Error(){
         switch(found.sym){
@@ -177,6 +187,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: ;");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }*/
     public void Return_Error(){
         switch(found.sym){
@@ -187,6 +198,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: ;");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     public void Asignacion_Error(){
         switch(found.sym){
@@ -199,6 +211,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: ;");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     public void Declaracion_Error(){
         switch(found.sym){
@@ -209,6 +222,7 @@ parser code
                 System.out.println("Error de Sintaxis se esperaba: ;");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     public void Main_Error(){
         switch(found.sym){
@@ -219,6 +233,7 @@ parser code
                 System.out.println("Error en el Main");
                 break;
         }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
 :}; 
 
@@ -266,7 +281,7 @@ FUNCION2 ::= FUNC TYPE:t ID:i ABREPAR LISTAPARAM:listaparam CIERRAPAR BEGIN CODE
                 funcion2.addNode(new Node("ENDFU", "end func"));
                 RESULT = funcion2;
              :}
-             | FUNC error {: parser.Func_Error();:};
+             | FUNC error:e {: System.out.println("Funcion");parser.Func_Error();:};
 
 LISTAPARAM ::= TYPE:t ID:i
                {:
@@ -314,7 +329,7 @@ MAINCOND ::= FUNCION:f FUNC MAIN BEGIN CODE:code RETORNO:retorno ENDM
                 maincond.addNode(retorno);
                 maincond.addNode(new Node("ENDM", "end main"));
                 RESULT = maincond;
-             :} | error {: parser.Main_Error(); :};
+             :} | error:e {: System.out.println("MAIN");parser.Main_Error(); :};
 
 DECLARACION ::= TYPE:t DECL:d FINLINE
                 {:
@@ -323,7 +338,7 @@ DECLARACION ::= TYPE:t DECL:d FINLINE
                     declaracion.addNode(d);
                     declaracion.addNode(new Node("FINLINE", ";"));
                     RESULT = declaracion;
-                :} | TYPE error{:parser.Declaracion_Error();:};
+                :} | TYPE error{:System.out.println("DECLARACION");parser.Declaracion_Error();:};
 
 DECL ::= DECL:d COMA ID:i DECL2:dd
          {:
@@ -360,7 +375,7 @@ ASIGNACION ::= ID:i ASIG VALORO:v FINLINE
                 asignacion.addNode(v);
                 asignacion.addNode(new Node("FINLINE", ";"));
                 RESULT = asignacion;
-               :} | ID error {: parser.Asignacion_Error(); :};
+               :} | ID error:e {: System.out.println("ASIGNACION");parser.Asignacion_Error(); :};
 
 IFCOND ::= IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDI
            {:
@@ -373,7 +388,7 @@ IFCOND ::= IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDI
             ifcond.addNode(code);
             ifcond.addNode(new Node("ENDI", "end if"));
             RESULT = ifcond;
-           :} | IF error {: parser.If_Error(); :};
+           :} | IF error:e {: System.out.println("IF");parser.If_Error(); :};
 
 ELSECOND ::= ELSE IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDE ELSECOND:e
              {:
@@ -397,7 +412,7 @@ ELSECOND ::= ELSE IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDE ELSECOND
                 elsecond.addNode(c);
                 elsecond.addNode(new Node("ENDE", "end else"));
                 RESULT = elsecond;
-             :} | ELSE error {: parser.Else_Error(); :};
+             :} | ELSE error:e {: System.out.println("ELSE");parser.Else_Error(); :};
 
 FORCOND ::= FOR ABREPAR TYPE:t ID:i HASTA OPERACION:o COMA ID:id OPSR OPSR CIERRAPAR BEGIN CODE:c ENDF
             {:
@@ -417,7 +432,7 @@ FORCOND ::= FOR ABREPAR TYPE:t ID:i HASTA OPERACION:o COMA ID:id OPSR OPSR CIERR
                 forcond.addNode(c);
                 forcond.addNode(new Node("ENDF", "end for"));
                 RESULT = forcond;
-            :} | FOR error {: parser.For_Error(); :};
+            :} | FOR error:e {: System.out.println("FOR");parser.For_Error(); :};
 
 LOOPCOND ::= LOOP ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDL
              {:
@@ -430,7 +445,7 @@ LOOPCOND ::= LOOP ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDL
                 loopcond.addNode(code);
                 loopcond.addNode(new Node("ENDL", "end loop"));
                 RESULT = loopcond;
-             :}| LOOP error {: parser.Loop_Error(); :};
+             :}| LOOP error {: System.out.println("LOOP");parser.Loop_Error(); :};
 
 OPTIONSCOND ::= OPTIONS ABREPAR ID:i COMA TYPE:t CIERRAPAR BEGIN OPTT:o ENDO
                 {:
@@ -445,7 +460,7 @@ OPTIONSCOND ::= OPTIONS ABREPAR ID:i COMA TYPE:t CIERRAPAR BEGIN OPTT:o ENDO
                     optionscond.addNode(o);
                     optionscond.addNode(new Node("ENDO", "end options"));
                     RESULT = optionscond;
-                :} | OPTIONS error {: parser.Options_Error(); :};
+                :} | OPTIONS error {: System.out.println("OPTIONS");parser.Options_Error(); :};
 
 OPTT ::= OPT ABRECOR VALORO:v CIERRACOR ABRE CODE:c CIERRA OPTT:o
          {:
@@ -480,7 +495,7 @@ PRINTCOND ::= PRINT ABREPAR PRINTER:p CIERRAPAR FINLINE
                 printcond.addNode(new Node("CIERRAPAR", ")"));
                 printcond.addNode(new Node("FINLINE", ";"));
                 RESULT = printcond;
-              :} | PRINT error{: parser.Print_Error(); :};
+              :} | PRINT error{: System.out.println("PRINT");parser.Print_Error(); :};
 
 PRINTER ::= VALORO:v
             {:  

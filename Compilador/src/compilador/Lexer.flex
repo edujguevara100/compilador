@@ -70,7 +70,7 @@ cierraComment = "*/"
 <YYINITIAL> {
 	{abreComment} {yybegin(comment);}
         {id} {return new Symbol(sym.ID, yyline, yycolumn,yytext());}
-        {not} {return new Symbol(sym.NOT, yyline, yycolumn,yytext());}
+        {not} {return new Symbol(sym.NOT, yyline, yycolumn,yytext());} 
         {string} {return new Symbol(sym.STRING, yyline, yycolumn,yytext());}
         {begin} {return new Symbol(sym.BEGIN, yyline, yycolumn,yytext());}
         {int} {return new Symbol(sym.INT, yyline, yycolumn,yytext());}
