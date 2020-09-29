@@ -38,28 +38,21 @@ parser code
             case sym.ENDFU: 
                 System.out.println("Error de Sintaxis se esperaba: begin");
                 break;
-            default:
-                System.out.println("Error de Sintaxis se esperaba: end func");
-                break;
         }
         System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
     public void If_Error(){
         switch(found.sym){
-            case sym.ABREPAR: 
-                System.out.println("Error de Sintaxis se esperaba: if");
-                break;
             case sym.CIERRAPAR:
+            case sym.ID:
+            case sym.BOOL:
                 System.out.println("Error de Sintaxis se esperaba: (");
                 break;
             case sym.BEGIN: 
                 System.out.println("Error de Sintaxis se esperaba: )");
                 break;
-            case sym.ENDI: 
-                System.out.println("Error de Sintaxis se esperaba: begin");
-                break;
             default:
-                System.out.println("Error de Sintaxis se esperaba: end if");
+                System.out.println("Error de Sintaxis se esperaba: begin");
                 break;
         }
         System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
@@ -172,6 +165,14 @@ parser code
         }
         System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
     }
+    public void Read_Error(){
+        if (found.sym == sym.FINLINE){
+            System.out.println("Error de Sintaxis se esperaba: id");
+        }else{
+            System.out.println("Error de Sintaxis se esperaba: ;");
+        }
+        System.out.println("Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right);
+    }
     /*public void Llamado_Error(){
         switch(found.sym){
             case sym.ABREPAR: 
@@ -215,8 +216,18 @@ parser code
     }
     public void Declaracion_Error(){
         switch(found.sym){
-            case sym.FINLINE: 
-                System.out.println("Error de Sintaxis se esperaba: type");
+            case sym.ID:
+                System.out.println("Error de Sintaxis se esperaba: ','");
+                break;
+            case sym.COMA:
+            case sym.FINLINE:
+                System.out.println("Error de Sintaxis se esperaba: id o un valor");
+                break;
+            case sym.ASIG:
+                System.out.println("Error de Sintaxis se esperaba: id");
+                break;
+            case sym.INT:
+                System.out.println("Error de Sintaxis se esperaba: '='");
                 break;
             default:
                 System.out.println("Error de Sintaxis se esperaba: ;");
@@ -240,13 +251,13 @@ parser code
 terminal ANDOR, OPREL, LOOP, MAIN, FOR, OPTIONS, OPT, DEFOPT, BEGIN, 
     ENDM, ENDO, ENDI, ENDE, ENDF, ENDFU, ENDL, FINLINE, ABRE, CIERRA, HASTA, ASIG, OPMD, OPSR, 
     COMA, RETURN, TYPE, FUNC, IF, ID, ABREPAR, CIERRAPAR, ELSE, PRINT, INT, CHAR, BOOL, STRING, 
-    NOT, ABRECOR, CIERRACOR;
+    NOT, ABRECOR, CIERRACOR, READ;
 
 non terminal FUNCION, FUNCION2, DECLARACION, ASIGNACION, IFCOND, ELSECOND, FORCOND,
     LOOPCOND, OPTIONSCOND, MAINCOND, PRINTCOND, OPERACION, CONDICION, 
     CODE, LISTAPARAM, LISTATYPES, DECL, DECL2, OPTT, PRINTER, OP1, 
     OP2, COND1, COND2, COND3, RETORNO, VALOR, ARREGLO, MATRIZ, VALOR1,
-    ARREGLO1, MATRIZ1, VALORO, LLAMADO, PARAMS, PARAMS1, ORIGIN;
+    ARREGLO1, MATRIZ1, VALORO, LLAMADO, PARAMS, PARAMS1, ORIGIN, READCOND;
 
 precedence left OPMD;
 precedence left OPSR;
@@ -269,16 +280,16 @@ FUNCION ::=  FUNCION:f FUNCION2:ff
 FUNCION2 ::= FUNC TYPE:t ID:i ABREPAR LISTAPARAM:listaparam CIERRAPAR BEGIN CODE:code RETORNO:retorno ENDFU
              {:
                 Node funcion2 = new Node("FUNCION");
-                funcion2.addNode(new Node("FUNC", "func"));
+                //funcion2.addNode(new Node("FUNC", "func"));
                 funcion2.addNode(new Node("TYPE", ((String) t)));
                 funcion2.addNode(new Node("ID", ((String) i)));
-                funcion2.addNode(new Node("ABREPAR", "("));
+                //funcion2.addNode(new Node("ABREPAR", "("));
                 funcion2.addNode(listaparam);
-                funcion2.addNode(new Node("CIERRAPAR", ")"));
-                funcion2.addNode(new Node("BEGIN", "begin"));
+                //funcion2.addNode(new Node("CIERRAPAR", ")"));
+                //funcion2.addNode(new Node("BEGIN", "begin"));
                 funcion2.addNode(code);
                 funcion2.addNode(retorno);
-                funcion2.addNode(new Node("ENDFU", "end func"));
+                //funcion2.addNode(new Node("ENDFU", "end func"));
                 RESULT = funcion2;
              :}
              | FUNC error:e {: System.out.println("Funcion");parser.Func_Error();:};
@@ -294,7 +305,7 @@ LISTAPARAM ::= TYPE:t ID:i
                {:
                 Node listaparam = new Node("LISTA PARAMETROS");
                 listaparam.addNode(listatypes);
-                listaparam.addNode(new Node("COMA", ","));
+                //listaparam.addNode(new Node("COMA", ","));
                 listaparam.addNode(new Node("TYPE", ((String) t)));
                 listaparam.addNode(new Node("ID", ((String) i)));
                 RESULT = listaparam;
@@ -305,7 +316,7 @@ LISTATYPES ::= LISTATYPES:lista COMA TYPE:t ID:i
                {:
                 Node listatypes = new Node("PARAMETROS TIPADOS");
                 listatypes.addNode(lista);
-                listatypes.addNode(new Node("COMA", ","));
+                //listatypes.addNode(new Node("COMA", ","));
                 listatypes.addNode(new Node("TYPE", ((String) t)));
                 listatypes.addNode(new Node("ID", ((String) i)));
                 RESULT = listatypes;
@@ -322,12 +333,12 @@ MAINCOND ::= FUNCION:f FUNC MAIN BEGIN CODE:code RETORNO:retorno ENDM
              {:
                 Node maincond = new Node("MAIN");
                 maincond.addNode(f);
-                maincond.addNode(new Node("FUNC", "func"));
-                maincond.addNode(new Node("MAIN", "int_main()"));
-                maincond.addNode(new Node("BEGIN", "begin"));
+               // maincond.addNode(new Node("FUNC", "func"));
+                //maincond.addNode(new Node("MAIN", "int_main()"));
+              //  maincond.addNode(new Node("BEGIN", "begin"));
                 maincond.addNode(code);
                 maincond.addNode(retorno);
-                maincond.addNode(new Node("ENDM", "end main"));
+               // maincond.addNode(new Node("ENDM", "end main"));
                 RESULT = maincond;
              :} | error:e {: System.out.println("MAIN");parser.Main_Error(); :};
 
@@ -336,7 +347,7 @@ DECLARACION ::= TYPE:t DECL:d FINLINE
                     Node declaracion = new Node("DECLARACION");
                     declaracion.addNode(new Node("TYPE", ((String) t)));
                     declaracion.addNode(d);
-                    declaracion.addNode(new Node("FINLINE", ";"));
+                   // declaracion.addNode(new Node("FINLINE", ";"));
                     RESULT = declaracion;
                 :} | TYPE error{:System.out.println("DECLARACION");parser.Declaracion_Error();:};
 
@@ -344,7 +355,7 @@ DECL ::= DECL:d COMA ID:i DECL2:dd
          {:
             Node decl = new Node("LISTA DE VARIABLES");
             decl.addNode(d);
-            decl.addNode(new Node("COMA", ","));
+          //  decl.addNode(new Node("COMA", ","));
             decl.addNode(new Node("ID", ((String) i)));
             decl.addNode(dd);
             RESULT = decl;
@@ -373,115 +384,115 @@ ASIGNACION ::= ID:i ASIG VALORO:v FINLINE
                 asignacion.addNode(new Node("ID", ((String) i)));
                 asignacion.addNode(new Node("ASIG", "="));
                 asignacion.addNode(v);
-                asignacion.addNode(new Node("FINLINE", ";"));
+                //asignacion.addNode(new Node("FINLINE", ";"));
                 RESULT = asignacion;
                :} | ID error:e {: System.out.println("ASIGNACION");parser.Asignacion_Error(); :};
 
 IFCOND ::= IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDI
            {:
             Node ifcond = new Node("BLOQUE IF");
-            ifcond.addNode(new Node("IF", "if"));
-            ifcond.addNode(new Node("ABREPAR", "("));
+        //    ifcond.addNode(new Node("IF", "if"));
+        //    ifcond.addNode(new Node("ABREPAR", "("));
             ifcond.addNode(c);
-            ifcond.addNode(new Node("CIERRAPAR", ")"));
-            ifcond.addNode(new Node("BEGIN", "begin"));
+        //    ifcond.addNode(new Node("CIERRAPAR", ")"));
+        //    ifcond.addNode(new Node("BEGIN", "begin"));
             ifcond.addNode(code);
-            ifcond.addNode(new Node("ENDI", "end if"));
+          //  ifcond.addNode(new Node("ENDI", "end if"));
             RESULT = ifcond;
            :} | IF error:e {: System.out.println("IF");parser.If_Error(); :};
 
 ELSECOND ::= ELSE IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDE ELSECOND:e
              {:
-                Node elsecond = new Node("BLOQUE ELSE");
-                elsecond.addNode(new Node("ELSE", "else"));
-                elsecond.addNode(new Node("IF", "if"));
-                elsecond.addNode(new Node("ABREPAR", "("));
+                Node elsecond = new Node("BLOQUE ELSE IF");
+               // elsecond.addNode(new Node("ELSE", "else"));
+               // elsecond.addNode(new Node("IF", "if"));
+               // elsecond.addNode(new Node("ABREPAR", "("));
                 elsecond.addNode(c);
-                elsecond.addNode(new Node("CIERRAPAR", ")"));
-                elsecond.addNode(new Node("BEGIN", "begin"));
+               // elsecond.addNode(new Node("CIERRAPAR", ")"));
+               // elsecond.addNode(new Node("BEGIN", "begin"));
                 elsecond.addNode(code);
-                elsecond.addNode(new Node("ENDE", "end else"));
+                //elsecond.addNode(new Node("ENDE", "end else"));
                 elsecond.addNode(e);
                 RESULT = elsecond;
              :}
              | ELSE BEGIN CODE:c ENDE
              {:
                 Node elsecond = new Node("BLOQUE ELSE");
-                elsecond = new Node("ELSE", "else");
-                elsecond.addNode(new Node("BEGIN", "begin"));
+               // elsecond = new Node("ELSE", "else");
+                //elsecond.addNode(new Node("BEGIN", "begin"));
                 elsecond.addNode(c);
-                elsecond.addNode(new Node("ENDE", "end else"));
+               // elsecond.addNode(new Node("ENDE", "end else"));
                 RESULT = elsecond;
              :} | ELSE error:e {: System.out.println("ELSE");parser.Else_Error(); :};
 
 FORCOND ::= FOR ABREPAR TYPE:t ID:i HASTA OPERACION:o COMA ID:id OPSR OPSR CIERRAPAR BEGIN CODE:c ENDF
             {:
                 Node forcond = new Node("BLOQUE FOR");
-                forcond.addNode(new Node("FOR", "for"));
-                forcond.addNode(new Node("ABREPAR", "("));
+                //forcond.addNode(new Node("FOR", "for"));
+                //forcond.addNode(new Node("ABREPAR", "("));
                 forcond.addNode(new Node("TYPE", ((String) t)));
                 forcond.addNode(new Node("ID", ((String) i)));
                 forcond.addNode(new Node("HASTA", "->"));
                 forcond.addNode(o);
-                forcond.addNode(new Node("COMA", ","));
+                //forcond.addNode(new Node("COMA", ","));
                 forcond.addNode(new Node("ID", ((String) id)));
                 forcond.addNode(new Node("OPSR", "+"));
                 forcond.addNode(new Node("OPSR", "+"));
-                forcond.addNode(new Node("CIERRAPAR", ")"));
-                forcond.addNode(new Node("BEGIN", "begin"));
+               // forcond.addNode(new Node("CIERRAPAR", ")"));
+              //  forcond.addNode(new Node("BEGIN", "begin"));
                 forcond.addNode(c);
-                forcond.addNode(new Node("ENDF", "end for"));
+              //  forcond.addNode(new Node("ENDF", "end for"));
                 RESULT = forcond;
             :} | FOR error:e {: System.out.println("FOR");parser.For_Error(); :};
 
 LOOPCOND ::= LOOP ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDL
              {:
                 Node loopcond = new Node("BLOQUE LOOP");
-                loopcond.addNode(new Node("LOOP", "loop"));
-                loopcond.addNode(new Node("ABREPAR", "("));
+                //loopcond.addNode(new Node("LOOP", "loop"));
+               // loopcond.addNode(new Node("ABREPAR", "("));
                 loopcond.addNode(c);
-                loopcond.addNode(new Node("CIERRAPAR", ")"));
-                loopcond.addNode(new Node("BEGIN", "begin"));
+               // loopcond.addNode(new Node("CIERRAPAR", ")"));
+              //  loopcond.addNode(new Node("BEGIN", "begin"));
                 loopcond.addNode(code);
-                loopcond.addNode(new Node("ENDL", "end loop"));
+               // loopcond.addNode(new Node("ENDL", "end loop"));
                 RESULT = loopcond;
              :}| LOOP error {: System.out.println("LOOP");parser.Loop_Error(); :};
 
 OPTIONSCOND ::= OPTIONS ABREPAR ID:i COMA TYPE:t CIERRAPAR BEGIN OPTT:o ENDO
                 {:
                     Node optionscond = new Node("BLOQUE OPTIONS");
-                    optionscond.addNode(new Node("OPTIONS", "options"));
-                    optionscond.addNode(new Node("ABREPAR", "("));
+                   // optionscond.addNode(new Node("OPTIONS", "options"));
+                  //  optionscond.addNode(new Node("ABREPAR", "("));
                     optionscond.addNode(new Node("ID", ((String) i)));
-                    optionscond.addNode(new Node("COMA", ","));
+                 //   optionscond.addNode(new Node("COMA", ","));
                     optionscond.addNode(new Node("TYPE", ((String) t)));
-                    optionscond.addNode(new Node("CIERRAPAR", ")"));
-                    optionscond.addNode(new Node("BEGIN", "begin"));
+                 //   optionscond.addNode(new Node("CIERRAPAR", ")"));
+                 //   optionscond.addNode(new Node("BEGIN", "begin"));
                     optionscond.addNode(o);
-                    optionscond.addNode(new Node("ENDO", "end options"));
+                 //   optionscond.addNode(new Node("ENDO", "end options"));
                     RESULT = optionscond;
                 :} | OPTIONS error {: System.out.println("OPTIONS");parser.Options_Error(); :};
 
 OPTT ::= OPT ABRECOR VALORO:v CIERRACOR ABRE CODE:c CIERRA OPTT:o
          {:
             Node optt = new Node("BLOQUE OPTION");
-            optt.addNode(new Node("OPTION", "opt"));
-            optt.addNode(new Node("ABRECOR", "["));
+            //optt.addNode(new Node("OPTION", "opt"));
+            //optt.addNode(new Node("ABRECOR", "["));
             optt.addNode(v);
-            optt.addNode(new Node("CIERRACOR", "]"));
-            optt.addNode(new Node("ABRE", "{"));
+            //optt.addNode(new Node("CIERRACOR", "]"));
+            //optt.addNode(new Node("ABRE", "{"));
             optt.addNode(c);
-            optt.addNode(new Node("CIERRA", "}"));
+            //optt.addNode(new Node("CIERRA", "}"));
             optt.addNode(o);
             RESULT = optt;
          :}
          | DEFOPT ABRE CODE:c CIERRA
          {:
             Node optt = new Node("BLOQUE DEFAULT OPTION");
-            optt.addNode(new Node("DEFOPT", "opt_def"));
-            optt.addNode(new Node("ABRE", "{"));
+            //optt.addNode(new Node("DEFOPT", "opt_def"));
+            //optt.addNode(new Node("ABRE", "{"));
             optt.addNode(c);
-            optt.addNode(new Node("CIERRA", "}"));
+            //optt.addNode(new Node("CIERRA", "}"));
             RESULT = optt;
          :};
          
@@ -489,67 +500,75 @@ OPTT ::= OPT ABRECOR VALORO:v CIERRACOR ABRE CODE:c CIERRA OPTT:o
 PRINTCOND ::= PRINT ABREPAR PRINTER:p CIERRAPAR FINLINE
               {:
                 Node printcond = new Node("PRINT");
-                printcond.addNode(new Node("PRINT", "print"));
-                printcond.addNode(new Node("ABREPAR", "("));
+                //printcond.addNode(new Node("PRINT", "print"));
+                //printcond.addNode(new Node("ABREPAR", "("));
                 printcond.addNode(p);
-                printcond.addNode(new Node("CIERRAPAR", ")"));
-                printcond.addNode(new Node("FINLINE", ";"));
+                //printcond.addNode(new Node("CIERRAPAR", ")"));
+                //printcond.addNode(new Node("FINLINE", ";"));
                 RESULT = printcond;
               :} | PRINT error{: System.out.println("PRINT");parser.Print_Error(); :};
 
 PRINTER ::= VALORO:v
             {:  
-                Node prin = new Node("PRINT CONTENT");
-                prin.addNode(v);
-                RESULT = prin;
+                //Node prin = new Node("PRINT CONTENT");
+                //prin.addNode(v);
+                RESULT = v;
             :}
             | STRING:s
             {:  
-                Node prin = new Node("PRINT CONTENT");
-                prin.addNode(new Node("STRING", ((String) s)));
+                //Node prin = new Node("PRINT CONTENT");
+                Node prin = new Node("STRING", ((String) s));
                 RESULT = prin;
             :};
 
+READCOND ::= READ ID:i FINLINE
+              {:
+                Node r = new Node("READ");
+                r.addNode(new Node("STRING", ((String) i)));
+                RESULT = r;
+              :} 
+              | READ error{: System.out.println("READ");parser.Read_Error(); :};
+
 OPERACION ::= OPERACION:o OPSR:op OP1:op1 
               {:
-                Node operacion = new Node("OPERACION SR");
+                //Node operacion = new Node("OPERACION SR");
+                Node operacion = new Node("OPSR", ((String) op));
                 operacion.addNode(o);
-                operacion.addNode(new Node("OPSR", ((String) op)));
                 operacion.addNode(op1);
                 RESULT = operacion;
               :}
               | OP1:op1
               {:
-                Node operacion = new Node("OPERACION SR");
-                operacion.addNode(op1);
-                RESULT = operacion;
+                //Node operacion = new Node("OPERACION SR");
+                //operacion.addNode(op1);
+                RESULT = op1;
               :};
 
 OP1 ::= OP1:op1 OPMD:op OP2:op2
         {:
-            Node operacion = new Node("OPERACION MD");
+            //Node operacion = new Node("OPERACION MD");
+            Node operacion = new Node("OPMD", ((String) op));
             operacion.addNode(op1);
-            operacion.addNode(new Node("OPSR", ((String) op)));
             operacion.addNode(op2);
             RESULT = operacion;
         :}
         | OP2:op2
         {:
-            Node operacion = new Node("OPERACION MD");
-            operacion.addNode(op2);
-            RESULT = operacion;
+            //Node operacion = new Node("OPERACION MD");
+            //operacion.addNode(op2);
+            RESULT = op2;
         :};
 
 OP2 ::= INT:i
         {:
-            Node op2 = new Node("VALOR OPERACION");
-            op2.addNode(new Node("INT", ((String) i)));
+            //Node op2 = new Node("VALOR OPERACION");
+            Node op2 = new Node("INT", ((String) i));
             RESULT = op2;
         :}
         | ID:i
         {:
-            Node op2 = new Node("VALOR OPERACION");
-            op2.addNode(new Node("ID", ((String) i)));
+            //Node op2 = new Node("VALOR OPERACION");
+            Node op2 = new Node("ID", ((String) i));
             RESULT = op2;
         :}
         | ABREPAR OPERACION:o CIERRAPAR
@@ -558,37 +577,37 @@ OP2 ::= INT:i
             op2.addNode(new Node("ABREPAR", "("));
             op2.addNode(o);
             op2.addNode(new Node("CIERRAPAR", ")"));
-            RESULT = op2;
+            RESULT = o;
         :};
 
 CONDICION ::= CONDICION:c OPREL:op COND1:c1
               {:
-                Node condicion = new Node("OPERACION OPREL");
+                //Node condicion = new Node("OPERACION OPREL");
+                Node condicion = new Node("OPREL", ((String) op));
                 condicion.addNode(c);
-                condicion.addNode(new Node("OPREL", ((String) op)));
                 condicion.addNode(c1);
                 RESULT = condicion;
               :}
               | COND1:c1
               {:
-                Node condicion = new Node("OPERACION OPREL");
-                condicion.addNode(c1);
-                RESULT = condicion;
+                //Node condicion = new Node("OPERACION OPREL");
+                //condicion.addNode(c1);
+                RESULT = c1;
               :};
 
 COND1 ::= COND1:c1 ANDOR:a COND2:c2
           {:
-            Node cond1 = new Node("OPERACION ANDOR");
+            //Node cond1 = new Node("OPERACION ANDOR");
+            Node cond1 = new Node("ANDOR", ((String) a));
             cond1.addNode(c1);
-            cond1.addNode(new Node("ANDOR", ((String) a)));
             cond1.addNode(c2);
             RESULT = cond1;
           :}
           | COND2:c2
           {:
-            Node cond1 = new Node("OPERACION ANDOR");
-            cond1.addNode(c2);
-            RESULT = cond1;
+            //Node cond1 = new Node("OPERACION ANDOR");
+            //cond1.addNode(c2);
+            RESULT = c2;
           :};
 
 COND2 ::= COND3:c3 ABREPAR CONDICION:c CIERRAPAR 
@@ -602,21 +621,26 @@ COND2 ::= COND3:c3 ABREPAR CONDICION:c CIERRAPAR
           :}
           | BOOL:b
           {:    
-            Node cond2 = new Node("VALOR OPERACION");
-            cond2.addNode(new Node("BOOL", ((String) b)));
+            //Node cond2 = new Node("VALOR OPERACION");
+            Node cond2 = new Node("BOOL", ((String) b));
             RESULT = cond2;
           :}
           | ID:i
           {:    
-            Node cond2 = new Node("VALOR OPERACION");
-            cond2.addNode(new Node("ID", ((String) i)));
+            //Node cond2 = new Node("VALOR OPERACION");
+            Node cond2 = new Node("ID", ((String) i));
+            RESULT = cond2;
+          :}
+          | INT:i
+          {:
+            Node cond2 = new Node("INT", ((String) i));
             RESULT = cond2;
           :};
 
 COND3 ::= NOT
           {:
-            Node cond3 = new Node("VALOR OPERACION");
-            cond3.addNode(new Node("NOT", "!"));
+            //Node cond3 = new Node("VALOR OPERACION");
+            Node cond3 = new Node("NOT", "!");
             RESULT = cond3;
           :}
           | ; 
@@ -685,16 +709,23 @@ CODE ::= DECLARACION:o CODE:c
             code.addNode(c);
             RESULT = code;
          :}
+         | READCOND:o CODE:c
+         {:
+            Node code = new Node("CODE");
+            code.addNode(o);
+            code.addNode(c);
+            RESULT = code;
+         :}
          | ;
 
 RETORNO ::= RETURN VALORO:v FINLINE
             {:
             Node retorno = new Node("RETURN");
-            retorno.addNode(new Node("RETURN", "return"));
+            //retorno.addNode(new Node("RETURN", "return"));
             retorno.addNode(v);
-            retorno.addNode(new Node("FINLINE", ";"));
+            //retorno.addNode(new Node("FINLINE", ";"));
             RESULT = retorno;
-            :} | RETURN error {: parser.Return_Error(); :};
+            :} | RETURN error {: System.out.println("RETORNO");parser.Return_Error(); :};
 
 ARREGLO ::= ABREPAR ARREGLO1:a CIERRAPAR
             {:
@@ -707,86 +738,86 @@ ARREGLO ::= ABREPAR ARREGLO1:a CIERRAPAR
 
 ARREGLO1 ::= ARREGLO1:a COMA VALOR1:v 
              {:
-                Node arr = new Node("LISTA ARRAY");
+                Node arr = new Node("ARRAY");
                 arr.addNode(a);
-                arr.addNode(new Node("COMA", ","));
+                //arr.addNode(new Node("COMA", ","));
                 arr.addNode(v);
                 RESULT = arr;
              :}
              | VALOR1:v
              {:
-                Node arr = new Node("LISTA ARRAY");
-                arr.addNode(v);
-                RESULT = arr;
+                //Node arr = new Node("LISTA ARRAY");
+                //arr.addNode(v);
+                RESULT = v;
              :};
 
 MATRIZ ::= ABREPAR MATRIZ1:a CIERRAPAR
            {:
-                Node matriz = new Node("MATRIX");
-                matriz.addNode(new Node("ABREPAR", "("));
-                matriz.addNode(a);
-                matriz.addNode(new Node("CIERRAPAR", ")"));
-                RESULT = matriz;
+                //Node matriz = new Node("MATRIX");
+                //matriz.addNode(new Node("ABREPAR", "("));
+                //matriz.addNode(a);
+                //matriz.addNode(new Node("CIERRAPAR", ")"));
+                RESULT = a;
             :};
 
 MATRIZ1 ::= MATRIZ1:a COMA ARREGLO:v
             {:
-                Node mat = new Node("LISTA MATRIX");
+                Node mat = new Node("MATRIX");
                 mat.addNode(a);
-                mat.addNode(new Node("COMA", ","));
+                //mat.addNode(new Node("COMA", ","));
                 mat.addNode(v);
                 RESULT = mat;
              :}
             | ARREGLO:v
             {:
-                Node mat = new Node("LISTA MATRIX");
-                mat.addNode(v);
-                RESULT = mat;
+                //Node mat = new Node("LISTA MATRIX");
+                //mat.addNode(v);
+                RESULT = v;
              :};
 
 VALOR1 ::= CHAR:v
            {:
-                Node val = new Node("VALOR");
-                val.addNode(new Node("CHAR", ((String) v)));
+                //Node val = new Node("VALOR");
+                Node val = new Node("CHAR", ((String) v));
                 RESULT = val;
            :}
            | BOOL:v
            {:
-                Node val = new Node("VALOR");
-                val.addNode(new Node("BOOL", ((String) v)));
+                //Node val = new Node("VALOR");
+                Node val = new Node("BOOL", ((String) v));
                 RESULT = val;
            :};
 
 VALOR ::= MATRIZ:m
           {:
-                Node valor = new Node("VALOR");
-                valor.addNode(m);
-                RESULT = valor;
+                //Node valor = new Node("VALOR");
+                //valor.addNode(m);
+                RESULT = m;
           :}
           | ARREGLO:m
           {:
-                Node valor = new Node("VALOR");
-                valor.addNode(m);
-                RESULT = valor;
+                //Node valor = new Node("VALOR");
+                //valor.addNode(m);
+                RESULT = m;
           :}
           | VALOR1:m
           {:
-                Node valor = new Node("VALOR");
-                valor.addNode(m);
-                RESULT = valor;
+                //Node valor = new Node("VALOR");
+                //valor.addNode(m);
+                RESULT = m;
           :};
 
 VALORO ::= VALOR:m
            {:
-                Node valor = new Node("VALOR");
-                valor.addNode(m);
-                RESULT = valor;
+                //Node valor = new Node("VALOR");
+                //valor.addNode(m);
+                RESULT = m;
           :}
            | OPERACION:m
            {:
-                Node valor = new Node("VALOR");
-                valor.addNode(m);
-                RESULT = valor;
+                //Node valor = new Node("VALOR");
+                //valor.addNode(m);
+                RESULT = m;
           :};
 
 
@@ -794,18 +825,18 @@ LLAMADO ::= ID:i ABREPAR PARAMS:o CIERRAPAR FINLINE
             {:
                 Node llamado = new Node("LLAMDA FUNCION");
                 llamado.addNode(new Node("ID", ((String) i)));
-                llamado.addNode(new Node("ABREPAR", "("));
+                //llamado.addNode(new Node("ABREPAR", "("));
                 llamado.addNode(o);
-                llamado.addNode(new Node("CIERRAPAR", ")"));
-                llamado.addNode(new Node("FINLINE", ";"));
+                //llamado.addNode(new Node("CIERRAPAR", ")"));
+                //llamado.addNode(new Node("FINLINE", ";"));
                 RESULT = llamado;
             :};
 
 PARAMS ::= PARAMS1:o
            {:
-                Node params = new Node("PARAMETROS ENVIO");
-                params.addNode(o);
-                RESULT = params;
+                //Node params = new Node("PARAMETROS ENVIO");
+                //params.addNode(o);
+                RESULT = o;
            :}
            | ;
 
@@ -813,13 +844,13 @@ PARAMS1 ::= PARAMS1:p COMA VALORO:v
             {:
                 Node params = new Node("LISTA PARAMETROS");
                 params.addNode(p);
-                params.addNode(new Node("COMA", ","));
+                //params.addNode(new Node("COMA", ","));
                 params.addNode(v);
                 RESULT = params;
             :}
             | VALORO:v
             {:
-                Node params = new Node("LISTA PARAMETROS");
-                params.addNode(v);
-                RESULT = params;
+                //Node params = new Node("LISTA PARAMETROS");
+                //params.addNode(v);
+                RESULT = v;
             :};

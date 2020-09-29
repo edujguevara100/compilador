@@ -28,6 +28,7 @@ ende = "end else"
 endo = "end options"
 endfu = "end func"
 print = "print"
+read = "read"
 not = "!"
 else = "else"
 finline = ";"
@@ -84,6 +85,7 @@ cierraComment = "*/"
         {endf} {return new Symbol(sym.ENDF, yyline, yycolumn,yytext());}
         {endfu} {return new Symbol(sym.ENDFU, yyline, yycolumn,yytext());}
         {print} {return new Symbol(sym.PRINT, yyline, yycolumn,yytext());}
+        {read} {return new Symbol(sym.READ, yyline, yycolumn,yytext());}
         {else} {return new Symbol(sym.ELSE, yyline, yycolumn,yytext());}
 	{andor} {return new Symbol(sym.ANDOR, yyline, yycolumn,yytext());}
 	{opREL} {return new Symbol(sym.OPREL, yyline, yycolumn,yytext());}
