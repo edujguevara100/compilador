@@ -753,7 +753,7 @@ public class AnalizadorLexico implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
-            { error += "No reconoce: " + yytext() + " linea: " + yyline + " columna: "+yycolumn + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());
+            { error += "No reconoce: " + yytext() + " linea: " + (yyline+1) + " columna: "+(yycolumn+1) + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());
             }
           case 48: break;
           case 2: 
@@ -825,7 +825,7 @@ public class AnalizadorLexico implements java_cup.runtime.Scanner {
             }
           case 65: break;
           case 19: 
-            { error += "No se esperaba: " + yytext() + " linea: " + yyline + " columna: "+yycolumn + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());
+            { error += "No se esperaba: " + yytext() + " linea: " + (yyline+1) + " columna: "+(yycolumn+1) + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());
             }
           case 66: break;
           case 20: 

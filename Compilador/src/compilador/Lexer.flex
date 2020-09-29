@@ -113,8 +113,8 @@ cierraComment = "*/"
 	{oppar} {return new Symbol(sym.ABREPAR, yyline, yycolumn,yytext());}
 	{cerrarpar} {return new Symbol(sym.CIERRAPAR, yyline, yycolumn,yytext());}
         {letra} {error += "No se esperaba la letra: " + yytext() + " linea: " + yyline + " columna: "+yycolumn + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());}
-        {palabra} {error += "No se esperaba: " + yytext() + " linea: " + yyline + " columna: "+yycolumn + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());}
-	. {error += "No reconoce: " + yytext() + " linea: " + yyline + " columna: "+yycolumn + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());}
+        {palabra} {error += "No se esperaba: " + yytext() + " linea: " + (yyline+1) + " columna: "+(yycolumn+1) + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());}
+	. {error += "No reconoce: " + yytext() + " linea: " + (yyline+1) + " columna: "+(yycolumn+1) + "\n"; return new Symbol(sym.error, yyline, yycolumn,yytext());}
 }
 <comment> {
 	{cierraComment} {yybegin(YYINITIAL);}

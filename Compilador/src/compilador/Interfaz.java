@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -36,6 +37,7 @@ public class Interfaz extends javax.swing.JFrame {
     public static FileReader fr = null, fr2 = null;
     public static Node root;
     DefaultMutableTreeNode arbol;
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -115,56 +117,92 @@ public class Interfaz extends javax.swing.JFrame {
 
     private void bt_analizarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_analizarMouseClicked
         if (bt_analizar.isEnabled()) {
-            try {
-                // TODO add your handling code here:
-                AnalizadorLexico lexico = new AnalizadorLexico(fr);
-                String result = "";
-                ArrayList<Token> tokens = new ArrayList<Token>();
-                while (true) {
-                    Symbol tok = lexico.next_token();
-                    if (tok.sym == sym.EOF) {
-                        System.out.println("Analisis Lexico");
-                        if (!lexico.error.equals("")) {
-                            System.out.println(lexico.error);
-                        } else {
-                            System.out.println("No se encontraron errores lexicos");
-                        }
-                        break;
-                    } else {
-                        if (tok.sym != sym.error) {
-                            tokens.add(new Token(tok.value.toString(), tok.sym));
-                        }
-                    }
-                }
-                if (!lexico.error.equals("")) {
-                    File file = new File("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correcion.txt");
-                    FileWriter f = new FileWriter("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
-                    for (int i = 0; i < tokens.size(); i++) {
-                        result += tokens.get(i).valor + " ";
-                    }
-                    f.write(result);
-                    f.close();
-                    fr2 = new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
-                }
-                lexico = new AnalizadorLexico(fr2);
-                System.out.println("");
-                System.out.println("Analisis Sintactico");
-                parser parser = new parser(lexico);
-                parser.parse();
-                if (!parser.error.equals("")) {
-                    System.out.println(parser.error);
-                } else {
-                    System.out.println("No se encontraron errores sintacticos");
-                    root = parser.raiz;
-                    //parser.raiz.recorrido(parser.raiz, 0);
-                    bt_arbol.setEnabled(true);
-                }
-                bt_analizar.setEnabled(false);
-            } catch (Exception ex) {
-                System.out.println(ex.toString());
+            int a = analisis();
+            if(a == 1){
+                bt_arbol.setEnabled(true);
+            }else{
+                
             }
         }
     }//GEN-LAST:event_bt_analizarMouseClicked
+
+    public static int analisis() {
+        try {
+            // TODO add your handling code here:
+            AnalizadorLexico lexico = new AnalizadorLexico(fr);
+            String result = "";
+            ArrayList<Token> tokens = new ArrayList<Token>();
+            while (true) {
+                Symbol tok = lexico.next_token();
+                if (tok.sym == sym.EOF) {
+                    //System.out.println("Analisis Lexico");
+                    if (!lexico.error.equals("")) {
+                        //System.out.println(lexico.error);
+                    } else {
+                        //System.out.println("No se encontraron errores lexicos");
+                    }
+                    break;
+                } else {
+                    if (tok.sym != sym.error) {
+                        tokens.add(new Token(tok.value.toString(), tok.sym));
+                    }
+                }
+            }
+            if (!lexico.error.equals("")) {
+                File file = new File("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correcion.txt");
+                FileWriter f = new FileWriter("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
+                for (int i = 0; i < tokens.size(); i++) {
+                    result += tokens.get(i).valor + " ";
+                }
+                f.write(result);
+                f.close();
+                fr2 = new FileReader("C:/Users/edujg/Desktop/Eduardo/Compilador/src/compilador/correccion.txt");
+            }
+            lexico = new AnalizadorLexico(fr2);
+            //System.out.println("");
+            //System.out.println("Analisis Sintactico");
+            parser parser = new parser(lexico);
+            parser.parse();
+            if (parser.errorNR.equals("")) {
+                if (!parser.error.equals("") && !lexico.error.equals("")) {
+                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n";
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
+                    //System.out.println(parser.error);
+                } else if (!lexico.error.equals("")) {
+                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\nNo hay errores sintácticos";
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
+                } else if (!parser.error.equals("")) {
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n";
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\nNo hay errores sintácticos";
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.INFORMATION_MESSAGE);
+                }
+                root = parser.raiz;
+                return 1;
+            } else {
+                if (!parser.error.equals("") && !lexico.error.equals("")) {
+                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n" + parser.error;
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
+                    //System.out.println(parser.error);
+                } else if (!lexico.error.equals("")) {
+                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\nNo hay errores sintácticos" + parser.error;
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
+                } else if (!parser.error.equals("")) {
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n" + parser.error;
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\n" + parser.error;
+                    JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+            return 2;
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+        }
+            return 2;
+    }
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
         // TODO add your handling code here:
@@ -187,7 +225,7 @@ public class Interfaz extends javax.swing.JFrame {
         if (bt_arbol.isEnabled()) {
             panel1.setVisible(false);
             arbol = new DefaultMutableTreeNode(root);
-            DefaultTreeModel modelo = (DefaultTreeModel)jtree.getModel();
+            DefaultTreeModel modelo = (DefaultTreeModel) jtree.getModel();
             llenar(root, arbol);
             modelo.setRoot(arbol);
             jtree.setModel(modelo);
@@ -195,14 +233,15 @@ public class Interfaz extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_bt_arbolMouseClicked
 
-    public static void llenar(Node root, DefaultMutableTreeNode current){
+    public static void llenar(Node root, DefaultMutableTreeNode current) {
         for (int i = 0; i < root.hijos.size(); i++) {
             current.add(new DefaultMutableTreeNode(root.hijos.get(i)));
-            if(!root.hijos.get(i).hijos.isEmpty()){
-                llenar(root.hijos.get(i), (DefaultMutableTreeNode)current.getChildAt(i));
+            if (!root.hijos.get(i).hijos.isEmpty()) {
+                llenar(root.hijos.get(i), (DefaultMutableTreeNode) current.getChildAt(i));
             }
         }
     }
+
     /**
      * @param args the command line arguments
      */
@@ -233,7 +272,7 @@ public class Interfaz extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                generateLexer();
+                //generateLexer();
                 new Interfaz().setVisible(true);
             }
         });
