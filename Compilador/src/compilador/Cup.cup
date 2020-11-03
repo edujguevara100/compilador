@@ -54,7 +54,7 @@ parser code
                 parser.error += "Error de Sintaxis se esperaba: )\n";
                 break;
             default:
-                parser.error += "Error de Sintaxis se esperaba: begin\n";
+                parser.error += "Error de Sintaxis se esperaba: begin o end if\n";
                 break;
         }
         parser.error += "Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right+"\n";
@@ -162,7 +162,7 @@ parser code
                 parser.error += "Error de Sintaxis se esperaba: )\n";
                 break;
             default:
-                parser.error += "Error de Sintaxis se esperaba: ;\n";
+                parser.error += "Error de Sintaxis se esperaba: ; o (\n";
                 break;
         }
         parser.error += "Se encontro: "+found.value.toString()+" en la linea: "+found.left+" columna: "+found.right+"\n";
@@ -259,7 +259,7 @@ non terminal FUNCION, FUNCION2, DECLARACION, ASIGNACION, IFCOND, ELSECOND, FORCO
     LOOPCOND, OPTIONSCOND, MAINCOND, PRINTCOND, OPERACION, CONDICION, 
     CODE, LISTAPARAM, LISTATYPES, DECL, DECL2, OPTT, PRINTER, OP1, 
     OP2, COND1, COND2, COND3, RETORNO, VALOR, ARREGLO, MATRIZ, VALOR1,
-    ARREGLO1, MATRIZ1, VALORO, LLAMADO, PARAMS, PARAMS1, ORIGIN, READCOND;
+    ARREGLO1, MATRIZ1, VALORO, LLAMADO, PARAMS, PARAMS1, ORIGIN, READCOND, ACCEDERM, LISTIN;
 
 precedence left OPMD;
 precedence left OPSR;
@@ -567,10 +567,11 @@ OP2 ::= INT:i
             Node op2 = new Node("INT", ((String) i));
             RESULT = op2;
         :}
-        | ID:i
+        | ID:i ACCEDERM:m
         {:
             //Node op2 = new Node("VALOR OPERACION");
             Node op2 = new Node("ID", ((String) i));
+            op2.addNode(m);
             RESULT = op2;
         :}
         | ABREPAR OPERACION:o CIERRAPAR
@@ -851,6 +852,30 @@ PARAMS1 ::= PARAMS1:p COMA VALORO:v
                 RESULT = params;
             :}
             | VALORO:v
+            {:
+                //Node params = new Node("LISTA PARAMETROS");
+                //params.addNode(v);
+                RESULT = v;
+            :};
+
+ACCEDERM ::= ABRECOR LISTIN:l CIERRACOR
+             {:
+                RESULT = l;
+             :}
+             | ABREPAR PARAMS:o CIERRAPAR
+             {:
+                RESULT = o;
+            :}
+             | ;
+LISTIN ::= VALORO:l COMA VALORO:v
+           {:
+                Node listin = new Node("LISTA POSICIONES");
+                listin.addNode(l);
+                //params.addNode(new Node("COMA", ","));
+                listin.addNode(v);
+                RESULT = listin;
+           :}
+           | VALORO:v
             {:
                 //Node params = new Node("LISTA PARAMETROS");
                 //params.addNode(v);

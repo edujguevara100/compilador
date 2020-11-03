@@ -1,0 +1,15 @@
+func int_main() begin
+	loop (true & false | !(_b)) begin
+            _funcion(_b, 5+5);
+	end loop
+	options (_i , int) begin
+		opt [1]{
+			_i = 2
+			print(true;
+		}
+		opt_def {
+			_j = 3;
+		}
+	end options
+	return 0; 
+end main 

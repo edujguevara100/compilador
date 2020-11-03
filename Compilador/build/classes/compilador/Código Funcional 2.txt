@@ -1,0 +1,16 @@
+func int_main() begin
+        int _i = 0, _c = 0+5, _d, _a;
+	loop (!(_b)) begin
+            _PrintSumar(_b, 5+5);
+	end loop
+	options (_i , int) begin
+		opt [1]{
+			_i = 2;
+			print(true);
+		}
+		opt_def {
+			_i = 3;
+		}
+	end options
+	return 0; 
+end main

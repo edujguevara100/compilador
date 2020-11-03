@@ -1,4 +1,4 @@
-func bool _funcBool() begin
+func bool _funcBool() begin ola
 	int _i = 3;
         int _b = 2;
 	bool _val = false;
@@ -18,10 +18,8 @@ func int_main() begin
 			print(true);
 		}
 		opt_def {
-			_j = 3;
+			_j = 3;#
 		}
 	end options
 	return 0; 
-end main 
-
-
+end main

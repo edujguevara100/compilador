@@ -37,6 +37,8 @@ public class Interfaz extends javax.swing.JFrame {
     public static FileReader fr = null, fr2 = null;
     public static Node root;
     DefaultMutableTreeNode arbol;
+    public static ArrayList<Entry> tabla_simbolos = new ArrayList<Entry>();
+    public static ArrayList<String> ids;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -118,19 +120,87 @@ public class Interfaz extends javax.swing.JFrame {
     private void bt_analizarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_analizarMouseClicked
         if (bt_analizar.isEnabled()) {
             int a = analisis();
-            if(a == 1){
+            if (a == 1) {
                 bt_arbol.setEnabled(true);
-            }else{
-                
             }
+            bt_analizar.setEnabled(false);
         }
     }//GEN-LAST:event_bt_analizarMouseClicked
+    public static void llenar_tabla(Node actual) {
+        if (actual.nombre == "DECLARACION") {
+            String tipo = "";
+            ids = new ArrayList<String>();
+            tipo = actual.hijos.get(0).valor;
+            agregar_ids(actual.hijos.get(1));
+            for (int j = 0; j < ids.size(); j++) {
+                tabla_simbolos.add(new Entry(ids.get(j), tipo, ""));
+            }
+        } else if (actual.nombre == "FUNCION") {
+            String tipo_retorno = "";
+            String id_funcion = "";
+            String dominio = "void";
+            ids = new ArrayList<String>();
+            tipo_retorno = actual.hijos.get(0).valor;
+            id_funcion = actual.hijos.get(1).valor;
+            if (actual.hijos.get(2).nombre == "LISTA PARAMETROS") {
+                agregar_params(actual.hijos.get(2));
+                dominio = "";
+                for (int i = 0; i < ids.size(); i++) {
+                    if (i + 1 < ids.size()) {
+                        dominio += ids.get(i) + " x ";
+                    } else {
+                        dominio += ids.get(i);
+                    }
+                }
+            }
+            dominio += " -> " + tipo_retorno;
+            tabla_simbolos.add(new Entry(id_funcion, dominio, ""));
+        }
+        for (int i = 0; i < actual.hijos.size(); i++) {
+            if (!actual.hijos.get(i).hijos.isEmpty()) {
+                llenar_tabla(actual.hijos.get(i));
+            }
+        }
+    }
+
+    public static void agregar_params(Node actual) {
+        for (int i = 0; i < actual.hijos.size(); i++) {
+            if (actual.hijos.get(i).nombre == "TYPE") {
+                ids.add(actual.hijos.get(i).valor);
+            } else if (actual.hijos.get(i).nombre == "PARAMETROS TIPADOS") {
+                agregar_params(actual.hijos.get(i));
+            }
+        }
+    }
+
+    public static void agregar_ids(Node actual) {
+        for (int i = 0; i < actual.hijos.size(); i++) {
+            if (!actual.hijos.get(i).valor.equals("<non-terminal>")) {
+                boolean esta = false;
+                for (int j = 0; j < tabla_simbolos.size(); j++) {
+                    if (actual.hijos.get(i).valor.equals(tabla_simbolos.get(j).id)) {
+                        esta = true;
+                        break;
+                    }
+                }
+                if (esta) {
+                    System.out.println("Error, la variable " + actual.hijos.get(i).valor + " ya esta declarada");
+                } else {
+                    ids.add(actual.hijos.get(i).valor);
+                }
+
+            } else if (actual.hijos.get(i).nombre.equals("LISTA DE VARIABLES")) {
+                agregar_ids(actual.hijos.get(i));
+            }
+        }
+    }
 
     public static int analisis() {
         try {
             // TODO add your handling code here:
             AnalizadorLexico lexico = new AnalizadorLexico(fr);
             String result = "";
+            String erroreslex = "";
             ArrayList<Token> tokens = new ArrayList<Token>();
             while (true) {
                 Symbol tok = lexico.next_token();
@@ -138,6 +208,7 @@ public class Interfaz extends javax.swing.JFrame {
                     //System.out.println("Analisis Lexico");
                     if (!lexico.error.equals("")) {
                         //System.out.println(lexico.error);
+                        erroreslex = lexico.error;
                     } else {
                         //System.out.println("No se encontraron errores lexicos");
                     }
@@ -164,44 +235,47 @@ public class Interfaz extends javax.swing.JFrame {
             parser parser = new parser(lexico);
             parser.parse();
             if (parser.errorNR.equals("")) {
-                if (!parser.error.equals("") && !lexico.error.equals("")) {
-                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n";
+                if (!parser.error.equals("") && !erroreslex.equals("")) {
+                    String errores = "Análisis Léxico:\n\n" + erroreslex + "\n\nAnálisis Sintáctico:\n\n" + parser.error + "\n";
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
                     //System.out.println(parser.error);
-                } else if (!lexico.error.equals("")) {
-                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\nNo hay errores sintácticos";
+                } else if (!erroreslex.equals("")) {
+                    String errores = "Análisis Léxico:\n\n" + erroreslex + "\n\nAnálisis Sintáctico:\n\nNo hay errores sintácticos";
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
                 } else if (!parser.error.equals("")) {
-                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n";
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Sintáctico:\n\n" + parser.error + "\n";
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\nNo hay errores sintácticos";
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Sintáctico:\n\nNo hay errores sintácticos";
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.INFORMATION_MESSAGE);
                 }
                 root = parser.raiz;
+                llenar_tabla(root);
+                for (int i = 0; i < tabla_simbolos.size(); i++) {
+                    System.out.println("ID: " + tabla_simbolos.get(i).id + " TIPO: " + tabla_simbolos.get(i).tipo);
+                }
                 return 1;
             } else {
-                if (!parser.error.equals("") && !lexico.error.equals("")) {
-                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n" + parser.error;
+                if (!parser.error.equals("") && !erroreslex.equals("")) {
+                    String errores = "Análisis Léxico:\n\n" + erroreslex + "\n\nAnálisis Sintáctico:\n\n" + parser.error + "\n" + parser.errorNR;
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
                     //System.out.println(parser.error);
                 } else if (!lexico.error.equals("")) {
-                    String errores = "Análisis Léxico:\n\n" + lexico.error + "\n\nAnálisis Semántico:\n\nNo hay errores sintácticos" + parser.error;
+                    String errores = "Análisis Léxico:\n\n" + erroreslex + "\n\nAnálisis Sintáctico:\n\nNo hay errores sintácticos" + parser.errorNR;
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
                 } else if (!parser.error.equals("")) {
-                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\n" + parser.error + "\n" + parser.error;
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Sintáctico:\n\n" + parser.error + "\n" + parser.errorNR;
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Semántico:\n\n" + parser.error;
+                    String errores = "Análisis Léxico:\n\nNo hay errores léxicos" + "\n\nAnálisis Sintáctico:\n\n" + parser.errorNR;
                     JOptionPane.showMessageDialog(null, errores, "Análisis de Codigo", JOptionPane.ERROR_MESSAGE);
                 }
             }
-
             return 2;
         } catch (Exception ex) {
-            System.out.println(ex.toString());
+            //System.out.println(ex.toString());
         }
-            return 2;
+        return 2;
     }
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
@@ -256,16 +330,24 @@ public class Interfaz extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Interfaz.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Interfaz.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Interfaz.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Interfaz.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
