@@ -42,7 +42,7 @@ opREL = ("=="|">="|"<="|"!="|">"|"<")
 andor = ("&"|"|")
 separator = ","
 return = "return"
-data_type = (int|char|bool|array_int|array_char|array_bool|matrix_int|matrix_char|matirx_bool)
+data_type = (int|char|bool|array_int|array_char|array_bool|matrix_int|matrix_char|matrix_bool)
 func = "func"
 if = "if"
 palabra = [a-zA-Z]+

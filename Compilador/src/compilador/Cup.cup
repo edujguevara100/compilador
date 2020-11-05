@@ -733,9 +733,9 @@ RETORNO ::= RETURN VALORO:v FINLINE
 ARREGLO ::= ABREPAR ARREGLO1:a CIERRAPAR
             {:
                 Node arreglo = new Node("ARRAY");
-                arreglo.addNode(new Node("ABREPAR", "("));
+                //arreglo.addNode(new Node("ABREPAR", "("));
                 arreglo.addNode(a);
-                arreglo.addNode(new Node("CIERRAPAR", ")"));
+                //arreglo.addNode(new Node("CIERRAPAR", ")"));
                 RESULT = arreglo;
             :};
 
@@ -773,9 +773,10 @@ MATRIZ1 ::= MATRIZ1:a COMA ARREGLO:v
              :}
             | ARREGLO:v
             {:
+                Node mat = new Node("MATRIX");
                 //Node mat = new Node("LISTA MATRIX");
-                //mat.addNode(v);
-                RESULT = v;
+                mat.addNode(v);
+                RESULT = mat;
              :};
 
 VALOR1 ::= CHAR:v
@@ -826,7 +827,7 @@ VALORO ::= VALOR:m
 
 LLAMADO ::= ID:i ABREPAR PARAMS:o CIERRAPAR FINLINE
             {:
-                Node llamado = new Node("LLAMDA FUNCION");
+                Node llamado = new Node("LLAMADA FUNCION");
                 llamado.addNode(new Node("ID", ((String) i)));
                 //llamado.addNode(new Node("ABREPAR", "("));
                 llamado.addNode(o);

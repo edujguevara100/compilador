@@ -39,6 +39,7 @@ public class Interfaz extends javax.swing.JFrame {
     DefaultMutableTreeNode arbol;
     public static ArrayList<Entry> tabla_simbolos = new ArrayList<Entry>();
     public static ArrayList<String> ids;
+    public static ArrayList<String> tipos_matrix;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -126,23 +127,153 @@ public class Interfaz extends javax.swing.JFrame {
             bt_analizar.setEnabled(false);
         }
     }//GEN-LAST:event_bt_analizarMouseClicked
+    public static String tipo_valoro(Node n) {
+        if (n.hijos.isEmpty()) {
+            if (n.valor.contains("_")) {
+                if (existe(n.valor)) {
+                    return get_tipo(n.valor);
+                } else {
+                    System.out.println("La variable: " + n.valor + " no ha sido declarada");
+                    return "int";
+                }
+            } else if (n.valor.contains("'")) {
+                return "char";
+            } else if (n.valor.equals("true") || n.valor.equals("false")) {
+                return "bool";
+            } else {
+                return "int";
+            }
+        } else {
+            if (n.valor.contains("_")) {
+                //Funcion o Elemento de Matriz/Arreglo
+                if (existe(n.valor)) {
+                    String t = get_tipo(n.valor);
+                    if (!t.contains("->")) {
+                        if (t.contains("array")) {
+                            if (n.hijos.get(0).nombre.equals("LISTA POSICIONES")) {
+                                System.out.println("Error, la variable: " + n.valor + " es un array, no una matriz");
+                            } else {
+                                if (tipo_valoro(n.hijos.get(0)).equals("int")) {
+                                    return t.substring(t.indexOf("_") + 1);
+                                } else {
+                                    System.out.println("Error, los indices del arreglo deben de ser enteros");
+                                }
+                            }
+                        } else {
+                            if (n.hijos.get(0).nombre.equals("LISTA POSICIONES")) {
+                                if (tipo_valoro(n.hijos.get(0).hijos.get(0)).equals("int")
+                                        && tipo_valoro(n.hijos.get(0).hijos.get(1)).equals("int")) {
+                                    return t.substring(t.indexOf("_") + 1);
+                                } else {
+                                    System.out.println("Error, los indices del arreglo deben de ser enteros");
+                                }
+                            } else {
+                                if (tipo_valoro(n.hijos.get(0)).equals("int")) {
+                                    return "array_" + t.substring(t.indexOf("_") + 1);
+                                } else {
+                                    System.out.println("Error, los indices del arreglo deben de ser enteros");
+                                }
+                            }
+                        }
+                    } else {
+                        //revisar parametros
+                        return t.substring(t.indexOf("-> ") + 3);
+                    }
+                } else {
+                    System.out.println("La variable: " + n.valor + " no ha sido declarada");
+                    return "int";
+                }
+            } else if (n.nombre.equals("MATRIX")) {
+                String tipo = "";
+                tipos_matrix = new ArrayList<String>();
+                matriz(n);
+                tipo = tipos_matrix.get(0);
+                for (int i = 1; i < tipos_matrix.size(); i++) {
+                    if (!tipos_matrix.get(i).equals(tipo)) {
+                        System.out.println("Se esperaba un: " + tipo + " y se encontro un: " + ids.get(i));
+                    }
+                }
+                return "matrix_" + tipo.substring(tipo.indexOf("_") + 1);
+            } else if (n.nombre.equals("ARRAY")) {
+                ids = new ArrayList<String>();
+                array(n);
+                String tipo = ids.get(0);
+                for (int i = 1; i < ids.size(); i++) {
+                    if (!ids.get(i).equals(tipo)) {
+                        System.out.println("Se esperaba un: " + tipo + " y se encontro un: " + ids.get(i));
+                    }
+                }
+                return "array_" + tipo;
+            } else {
+                comprueba_op(n);
+                return "int";
+            }
+        }
+        return "int";
+    }
+
+    public static void matriz(Node n) {
+        for (int i = 0; i < n.hijos.size(); i++) {
+            if (n.hijos.get(i).nombre.equals("MATRIX")) {
+                matriz(n.hijos.get(i));
+            } else {
+                ids = new ArrayList<String>();
+                array(n.hijos.get(i));
+                String ti = ids.get(0);
+                for (int j = 1; j < ids.size(); j++) {
+                    if (!ids.get(j).equals(ti)) {
+                        System.out.println("Se esperaba un: " + ti + " y se encontro un: " + ids.get(j));
+                    }
+                }
+                ti = "array_" + ti;
+                tipos_matrix.add(ti);
+            }
+        }
+    }
+
+    public static void array(Node n) {
+        for (int i = 0; i < n.hijos.size(); i++) {
+            if (!n.hijos.get(i).nombre.equals("ARRAY")) {
+                ids.add(tipo_valoro(n.hijos.get(i)));
+            } else {
+                array(n.hijos.get(i));
+            }
+        }
+    }
+
+    public static void comprueba_op(Node act) {
+        for (int i = 0; i < act.hijos.size(); i++) {
+            if (act.hijos.get(i).valor.equals("+")
+                    || act.hijos.get(i).valor.equals("-")
+                    || act.hijos.get(i).valor.equals("*")
+                    || act.hijos.get(i).valor.equals("/")) {
+                comprueba_op(act.hijos.get(i));
+            }else{
+                String t = tipo_valoro(act.hijos.get(i));
+                if(!t.equals("int")){
+                    System.out.println("Error, se esperaba un int y se encontro un:" + t);
+                }
+            }
+        }
+    }
+
     public static void llenar_tabla(Node actual) {
-        if (actual.nombre == "DECLARACION") {
+        if (actual.nombre.equals("DECLARACION")) {
             String tipo = "";
             ids = new ArrayList<String>();
             tipo = actual.hijos.get(0).valor;
             agregar_ids(actual.hijos.get(1));
             for (int j = 0; j < ids.size(); j++) {
-                tabla_simbolos.add(new Entry(ids.get(j), tipo, ""));
+                agregar(new Entry(ids.get(j), tipo, ""));
             }
-        } else if (actual.nombre == "FUNCION") {
+        } else if (actual.nombre.equals("FUNCION")) {
             String tipo_retorno = "";
             String id_funcion = "";
             String dominio = "void";
             ids = new ArrayList<String>();
             tipo_retorno = actual.hijos.get(0).valor;
             id_funcion = actual.hijos.get(1).valor;
-            if (actual.hijos.get(2).nombre == "LISTA PARAMETROS") {
+            if (actual.hijos.get(2).nombre.equals("LISTA PARAMETROS")) {
                 agregar_params(actual.hijos.get(2));
                 dominio = "";
                 for (int i = 0; i < ids.size(); i++) {
@@ -154,7 +285,46 @@ public class Interfaz extends javax.swing.JFrame {
                 }
             }
             dominio += " -> " + tipo_retorno;
-            tabla_simbolos.add(new Entry(id_funcion, dominio, ""));
+            agregar(new Entry(id_funcion, dominio, ""));
+        } else if (actual.nombre.equals("BLOQUE FOR")) {
+            if (actual.hijos.get(0).valor.equals("int")) {
+                agregar(new Entry(actual.hijos.get(1).valor, actual.hijos.get(0).valor, ""));
+            }
+        } else if (actual.nombre.equals("BLOQUE OPTIONS")) {
+            //FALTA VALORO PARA LAS OPT INDIVIDUALES
+            if (actual.hijos.get(1).valor.equals("int") || actual.hijos.get(1).valor.equals("char")) {
+                if (existe(actual.hijos.get(0).valor)) {
+                    String t = get_tipo(actual.hijos.get(0).valor);
+                    if (!t.equals(actual.hijos.get(1).valor)) {
+                        System.out.println("La variable: " + actual.hijos.get(0).valor + ", no es del tipo: " + actual.hijos.get(1).valor);
+                    }
+                } else {
+                    System.out.println("La variable: " + actual.hijos.get(0).valor + " no ha sido declarada");
+                }
+            } else {
+                System.out.println("Error en el bloque options, se esperaba un int o un char");
+            }
+        } else if (actual.nombre.equals("READ")) {
+            if (!existe(actual.hijos.get(0).valor)) {
+                System.out.println("La variable: " + actual.hijos.get(0).valor + ", no ha sido declarada");
+            }
+        } else if (actual.nombre.equals("LLAMADA FUNCION")) {
+            if (existe(actual.hijos.get(0).valor)) {
+                //Comprobar tipos
+                String t = get_tipo(actual.hijos.get(0).valor);
+            } else {
+                System.out.println("La funcion: " + actual.hijos.get(0).valor + " no existe");
+            }
+        } else if(actual.nombre.equals("ASIGNACION")){
+            if(existe(actual.hijos.get(0).valor)){
+                String te = get_tipo(actual.hijos.get(0).valor);
+                String to = tipo_valoro(actual.hijos.get(2));
+                if(!to.equals(te)){
+                    System.out.println("Error de tipo, se esperaba: " + te + " y se encontro: " + to);
+                }
+            }else{
+                System.out.println("La variable: " + actual.hijos.get(0).valor + ", no ha sido declarada");
+            }
         }
         for (int i = 0; i < actual.hijos.size(); i++) {
             if (!actual.hijos.get(i).hijos.isEmpty()) {
@@ -163,11 +333,44 @@ public class Interfaz extends javax.swing.JFrame {
         }
     }
 
+    public static String get_tipo(String s) {
+        for (int i = 0; i < tabla_simbolos.size(); i++) {
+            if (s.equals(tabla_simbolos.get(i).id)) {
+                return tabla_simbolos.get(i).tipo;
+            }
+        }
+        return "";
+    }
+
+    public static boolean existe(String s) {
+        for (int i = 0; i < tabla_simbolos.size(); i++) {
+            if (s.equals(tabla_simbolos.get(i).id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void agregar(Entry e) {
+        boolean esta = false;
+        for (int i = 0; i < tabla_simbolos.size(); i++) {
+            if (e.id.equals(tabla_simbolos.get(i).id)) {
+                esta = true;
+                break;
+            }
+        }
+        if (esta) {
+            System.out.println("La variable: " + e.id + " ya fue declarada");
+        } else {
+            tabla_simbolos.add(e);
+        }
+    }
+
     public static void agregar_params(Node actual) {
         for (int i = 0; i < actual.hijos.size(); i++) {
-            if (actual.hijos.get(i).nombre == "TYPE") {
+            if (actual.hijos.get(i).nombre.equals("TYPE")) {
                 ids.add(actual.hijos.get(i).valor);
-            } else if (actual.hijos.get(i).nombre == "PARAMETROS TIPADOS") {
+            } else if (actual.hijos.get(i).nombre.equals("PARAMETROS TIPADOS")) {
                 agregar_params(actual.hijos.get(i));
             }
         }
