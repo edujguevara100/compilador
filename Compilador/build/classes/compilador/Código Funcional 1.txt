@@ -1,11 +1,12 @@
 func int _funcion (int _a, char _b, bool _t) begin
-	int _i = 3, _j = _i, _c = 2+2;
+	int _i = 1, _j = _i, _c = 2+2;
         char _h = _funcion(1, _b, _c) + 5;
         matrix_bool _f;
-        matrix_int _k = ((true, false, true), (false), (true)), _b;
+        matrix_bool _k = ((true, false, true), (false), (true));
+        matrix_int _b;
         read _i;
         array_char _l = ('a'), _y, _g = ('a', 'b', 'c');
-	_i = 2 +_b[1];
+	_i = 2 +_b[1, 0];
         _f = ((true, false, true), (true));
 	if ((_i > _j) & true | false) begin
 		if(true) begin
@@ -36,12 +37,11 @@ func int_main() begin
 			_i = 2;
 			print(true);
 		}
+                opt [2]{
+                }
 		opt_def {
 			_j = 3;
 		}
 	end options
 	return 0; 
 end main 
-
-
-
