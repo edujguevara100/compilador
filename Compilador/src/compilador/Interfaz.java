@@ -41,9 +41,9 @@ public class Interfaz extends javax.swing.JFrame {
     public static ArrayList<String> ids, ids2, param;
     public static ArrayList<String> tipos_matrix;
     public static ArrayList<String> ids_params;
-    public static int contador_ambito = 0, offset = 0;
+    public static int contador_ambito = 0, offset = 0, control_ambito = -1;
     public static String ambito = "";
-    public static boolean flag_ambito = false;
+    public static boolean flag_ambito = false, concat = false;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -131,6 +131,21 @@ public class Interfaz extends javax.swing.JFrame {
             bt_analizar.setEnabled(false);
         }
     }//GEN-LAST:event_bt_analizarMouseClicked
+    public static int getSize(String t){
+        if(t.equals("int")){
+            return 4;
+        } else if(t.equals("bool")){
+            return 1;
+        } else if(t.equals("char")){
+            return 1;
+        } else if(t.contains("array_")){
+            return 4;
+        } else if(t.contains("matrix_")){
+            return 4;
+        }
+        return 0;
+    }
+    
     public static String tipo_valoro(Node n) {
         if (n.hijos.isEmpty()) {
             if (n.valor.contains("_")) {
@@ -318,18 +333,28 @@ public class Interfaz extends javax.swing.JFrame {
             if (act.hijos.size() == 3) {
                 String x = tipo_valoro(act.hijos.get(1));
                 if (!x.equals("bool")) {
-                    System.out.println("ERRORRRR");
+                    System.out.println("Se esperaba un bool");
                 }
             } else {
                 String x = tipo_valoro(act.hijos.get(2));
                 if (!x.equals("bool")) {
-                    System.out.println("ERRORRRR");
+                    System.out.println("Se esperaba un bool");
                 }
             }
         }
     }
 
     public static void llenar_tabla(Node actual) {
+        if (actual.nombre.equals("BLOQUE IF")
+                || actual.nombre.equals("BLOQUE ELSE IF")
+                || actual.nombre.equals("BLOQUE ELSE")
+                || actual.nombre.equals("BLOQUE OPTIONS")
+                || actual.nombre.equals("BLOQUE LOOP")
+                || actual.nombre.equals("BLOQUE FOR")) {
+            ambito += "," + contador_ambito;
+            contador_ambito++;
+            control_ambito++;
+        }
         if (actual.nombre.equals("DECLARACION")) {
             //FALTA CAMBIAR READ read_int?
             //FALTA MANEJAR RETURNS (imposible parece)
@@ -357,7 +382,7 @@ public class Interfaz extends javax.swing.JFrame {
                 agregar_params(actual.hijos.get(2));
                 dominio = "";
                 for (int i = 0; i < ids.size(); i++) {
-                    agregar(new Entry(ids_params.get(i), ids.get(i), id_funcion, offset));
+                    agregar(new Entry(ids_params.get(i), ids.get(i), id_funcion, 0));
                     if (i + 1 < ids.size()) {
                         dominio += ids.get(i) + " x ";
                     } else {
@@ -366,7 +391,7 @@ public class Interfaz extends javax.swing.JFrame {
                 }
             }
             dominio += " -> " + tipo_retorno;
-            agregar(new Entry(id_funcion, dominio, id_funcion, 0));
+            agregar(new Entry(id_funcion, dominio, "", 0));
             ids = new ArrayList<String>();
         } else if (actual.nombre.equals("BLOQUE FOR")) {
             if (actual.hijos.get(0).valor.equals("int")) {
@@ -457,26 +482,20 @@ public class Interfaz extends javax.swing.JFrame {
                     ambito = "main";
                     offset = 0;
                 }
-            } else if (actual.nombre.equals("BLOQUE IF")
-                    || actual.nombre.equals("BLOQUE ELSE IF")
-                    || actual.nombre.equals("BLOQUE ELSE")
-                    || actual.nombre.equals("BLOQUE OPTION")
-                    || actual.nombre.equals("BLOQUE DEFAULT OPTION")
-                    || actual.nombre.equals("BLOQUE LOOP")
-                    || actual.nombre.equals("BLOQUE FOR")) {
-                System.out.println(actual.nombre);
-                ambito += "," + contador_ambito;
-                contador_ambito++;
-                flag_ambito = true;
             }
             if (!actual.hijos.get(i).hijos.isEmpty()) {
                 llenar_tabla(actual.hijos.get(i));
             }
-            if (flag_ambito) {
-                ambito = ambito.substring(0, ambito.lastIndexOf(","));
-                flag_ambito = false;
-            }
-
+        }
+        if (control_ambito >= 0
+                && (actual.nombre.equals("BLOQUE IF")
+                || actual.nombre.equals("BLOQUE ELSE IF")
+                || actual.nombre.equals("BLOQUE ELSE")
+                || actual.nombre.equals("BLOQUE OPTIONS")
+                || actual.nombre.equals("BLOQUE LOOP")
+                || actual.nombre.equals("BLOQUE FOR"))) {
+            ambito = ambito.substring(0, ambito.lastIndexOf(","));
+            control_ambito--;
         }
     }
 
@@ -492,7 +511,9 @@ public class Interfaz extends javax.swing.JFrame {
     public static String get_tipo(String s) {
         for (int i = 0; i < tabla_simbolos.size(); i++) {
             if (s.equals(tabla_simbolos.get(i).id)) {
-                return tabla_simbolos.get(i).tipo;
+                if(ambito.contains(tabla_simbolos.get(i).ambito)){
+                    return tabla_simbolos.get(i).tipo;
+                }
             }
         }
         return "";
@@ -501,7 +522,9 @@ public class Interfaz extends javax.swing.JFrame {
     public static boolean existe(String s) {
         for (int i = 0; i < tabla_simbolos.size(); i++) {
             if (s.equals(tabla_simbolos.get(i).id)) {
-                return true;
+                if (ambito.contains(tabla_simbolos.get(i).ambito)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -511,14 +534,17 @@ public class Interfaz extends javax.swing.JFrame {
         boolean esta = false;
         for (int i = 0; i < tabla_simbolos.size(); i++) {
             if (e.id.equals(tabla_simbolos.get(i).id)) {
-                esta = true;
-                break;
+                if (ambito.contains(tabla_simbolos.get(i).ambito)) {
+                    esta = true;
+                    break;
+                }
             }
         }
         if (esta) {
             System.out.println("La variable: " + e.id + " ya fue declarada");
         } else {
             tabla_simbolos.add(e);
+            offset += getSize(e.tipo);
         }
     }
 
@@ -541,8 +567,10 @@ public class Interfaz extends javax.swing.JFrame {
                 boolean esta = false;
                 for (int j = 0; j < tabla_simbolos.size(); j++) {
                     if (actual.hijos.get(i).valor.equals(tabla_simbolos.get(j).id)) {
-                        esta = true;
-                        break;
+                        if (ambito.contains(tabla_simbolos.get(j).ambito)) {
+                            esta = true;
+                            break;
+                        }
                     }
                 }
                 if (esta) {
@@ -640,8 +668,9 @@ public class Interfaz extends javax.swing.JFrame {
                 llenar_tabla(root);
                 for (int i = 0; i < tabla_simbolos.size(); i++) {
                     System.out.println("ID: " + tabla_simbolos.get(i).id
-                            + " TIPO: " + tabla_simbolos.get(i).tipo
-                            + " AMBITO: " + tabla_simbolos.get(i).ambito);
+                            + ", TIPO: " + tabla_simbolos.get(i).tipo
+                            + ", AMBITO: " + tabla_simbolos.get(i).ambito
+                            + ", OFFSET: " + tabla_simbolos.get(i).offset);
                 }
                 return 1;
             } else {

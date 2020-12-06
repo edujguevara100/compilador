@@ -440,7 +440,8 @@ ELSECOND ::= ELSE IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDE ELSECOND
                 elsecond.addNode(c);
                // elsecond.addNode(new Node("ENDE", "end else"));
                 RESULT = elsecond;
-             :} | ELSE error:e {: parser.error+="ELSE\n";parser.Else_Error(); :};
+             :} | ELSE error:e {: parser.error+="ELSE\n";parser.Else_Error(); :}
+              | ;
 
 FORCOND ::= FOR ABREPAR TYPE:t ID:i HASTA OPERACION:o COMA ID:id OPSR OPSR CIERRAPAR BEGIN CODE:c ENDF
             {:
@@ -691,13 +692,6 @@ CODE ::= DECLARACION:o CODE:c
             RESULT = code;
          :}
          | ASIGNACION:o CODE:c
-         {:
-            Node code = new Node("CODE");
-            code.addNode(o);
-            code.addNode(c);
-            RESULT = code;
-         :}
-         | IFCOND:o CODE:c
          {:
             Node code = new Node("CODE");
             code.addNode(o);
