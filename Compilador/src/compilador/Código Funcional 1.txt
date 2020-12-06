@@ -1,20 +1,23 @@
-func int _funcion (int _a, char _b, bool _t) begin
+func int _funcion (int _a, char _y, bool _t) begin
+        if (_a > _y) begin 
+        end if
 	int _i = 1, _j = _i, _c = 2+2;
-        char _h = _funcion(1, _b, _c) + 5;
-        matrix_bool _f;
-        matrix_bool _k = ((true, false, true), (false), (true));
-        matrix_int _b;
+        matrix_bool{1,2} _f;
+        matrix_bool{3,2} _k = {{true, false}, {false, true}, {true, true}};
+        matrix_int{2,2} _b = {{1,2}, {3,4}};
+        int _h = _funcion(1, 'a', false) + 5;
+        bool _m = true;
         read _i;
-        array_char _l = ('a'), _y, _g = ('a', 'b', 'c');
+        array_char{3} _l = {'a', 'j', 'x'}, _u, _g = {'a', 'b', 'c'};
 	_i = 2 +_b[1, 0];
-        _f = ((true, false, true), (true));
-	if ((_i > _j) & true | false) begin
-		if(true) begin
+        _f = {{true, false}};
+	if ((_i > _j) & !(true | false)) begin 
+		if(true) begin 
 			_i = 2*5/2+3;
 		end if	
 	end if
-	else if(true) begin
-		for(int _q -> 2, _q++) begin
+	else if(true) begin 
+		for(int _q -> 2, _q++) begin 
 		end for
 	end else
         else if(false) begin
@@ -29,7 +32,7 @@ func int _funcion (int _a, char _b, bool _t) begin
 end func
 func int_main() begin
         bool _x;
-	loop (true & false | !(_b)) begin
+	loop (true & false | !(_m)) begin
             _funcion(_b, 5+5);
 	end loop
 	options (_i , int) begin
@@ -40,6 +43,7 @@ func int_main() begin
                 opt [2]{
                 }
 		opt_def {
+                        int _n;
 			_j = 3;
 		}
 	end options

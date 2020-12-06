@@ -11,9 +11,11 @@ package compilador;
  */
 public class Entry {
     String id, ambito, tipo;
-    Entry(String i, String t, String a){
+    int offset;
+    Entry(String i, String t, String a, int o){
         id = i;
         tipo = t;
         ambito = a;
+        offset = o;
     }
 }

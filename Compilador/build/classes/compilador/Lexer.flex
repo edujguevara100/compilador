@@ -39,10 +39,14 @@ opASIG = "="
 opMD = [*/]
 opSR = [+-]
 opREL = ("=="|">="|"<="|"!="|">"|"<")
-andor = ("&"|"|")
+and = "&"
+or = "|"
 separator = ","
 return = "return"
-data_type = (int|char|bool|array_int|array_char|array_bool|matrix_int|matrix_char|matrix_bool)
+prim_type = (int|char|bool)
+arr_type = (array_int|array_char|array_bool){opllaveA}{int}{opllaveB}
+mat_type = (matrix_int|matrix_char|matrix_bool){opllaveA}{int}{separator}{int}{opllaveB}
+data_type = ({prim_type}|{arr_type}|{mat_type})
 func = "func"
 if = "if"
 palabra = [a-zA-Z]+
@@ -87,7 +91,8 @@ cierraComment = "*/"
         {print} {return new Symbol(sym.PRINT, yyline, yycolumn,yytext());}
         {read} {return new Symbol(sym.READ, yyline, yycolumn,yytext());}
         {else} {return new Symbol(sym.ELSE, yyline, yycolumn,yytext());}
-	{andor} {return new Symbol(sym.ANDOR, yyline, yycolumn,yytext());}
+	{and} {return new Symbol(sym.AND, yyline, yycolumn,yytext());}
+        {or} {return new Symbol(sym.OR, yyline, yycolumn,yytext());}
 	{opREL} {return new Symbol(sym.OPREL, yyline, yycolumn,yytext());}
 	{loop} {return new Symbol(sym.LOOP, yyline, yycolumn,yytext());}
 	{main} {return new Symbol(sym.MAIN, yyline, yycolumn,yytext());}

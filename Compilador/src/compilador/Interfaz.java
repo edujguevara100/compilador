@@ -38,8 +38,12 @@ public class Interfaz extends javax.swing.JFrame {
     public static Node root;
     DefaultMutableTreeNode arbol;
     public static ArrayList<Entry> tabla_simbolos = new ArrayList<Entry>();
-    public static ArrayList<String> ids, ids2;
+    public static ArrayList<String> ids, ids2, param;
     public static ArrayList<String> tipos_matrix;
+    public static ArrayList<String> ids_params;
+    public static int contador_ambito = 0, offset = 0;
+    public static String ambito = "";
+    public static boolean flag_ambito = false;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -148,13 +152,16 @@ public class Interfaz extends javax.swing.JFrame {
                 //Funcion o Elemento de Matriz/Arreglo
                 if (existe(n.valor)) {
                     String t = get_tipo(n.valor);
-                    if (!t.contains("->")) {
+                    if (t.equals("int") || t.equals("bool") || t.equals("char")) {
+                        System.out.println(n.valor + " es del tipo: " + t + ", no es funcion ni arreglo ni matriz");
+                        return t;
+                    } else if (!t.contains("->")) {
                         if (t.contains("array")) {
                             if (n.hijos.get(0).nombre.equals("LISTA POSICIONES")) {
                                 System.out.println("Error, la variable: " + n.valor + " es un array, no una matriz");
                             } else {
                                 if (tipo_valoro(n.hijos.get(0)).equals("int")) {
-                                    return t.substring(t.indexOf("_") + 1);
+                                    return t.substring(t.indexOf("_") + 1, t.indexOf("{"));
                                 } else {
                                     System.out.println("Error, los indices del arreglo deben de ser enteros");
                                 }
@@ -163,7 +170,7 @@ public class Interfaz extends javax.swing.JFrame {
                             if (n.hijos.get(0).nombre.equals("LISTA POSICIONES")) {
                                 if (tipo_valoro(n.hijos.get(0).hijos.get(0)).equals("int")
                                         && tipo_valoro(n.hijos.get(0).hijos.get(1)).equals("int")) {
-                                    return t.substring(t.indexOf("_") + 1);
+                                    return t.substring(t.indexOf("_") + 1, t.indexOf("{"));
                                 } else {
                                     System.out.println("Error, los indices del arreglo deben de ser enteros");
                                 }
@@ -176,7 +183,21 @@ public class Interfaz extends javax.swing.JFrame {
                             }
                         }
                     } else {
-                        //revisar parametros
+                        //revisar parametros con los hijos de n
+                        param = new ArrayList<String>();
+                        params(n);
+                        String tip = t.substring(0, t.indexOf("-"));
+                        String tipo[] = tip.split(" x ");
+                        tipo[tipo.length - 1] = tipo[tipo.length - 1].replace(" ", "");
+                        if (tipo.length != param.size()) {
+                            System.out.println("Se esperaban: " + tipo.length + " parametros, y se encontraron: " + param.size());
+                        } else {
+                            for (int i = 0; i < param.size(); i++) {
+                                if (!param.get(i).equals(tipo[i])) {
+                                    System.out.println("Se esperaba un: " + tipo[i] + " y se encontro un: " + param.get(i));
+                                }
+                            }
+                        }
                         return t.substring(t.indexOf("-> ") + 3);
                     }
                 } else {
@@ -190,10 +211,11 @@ public class Interfaz extends javax.swing.JFrame {
                 tipo = tipos_matrix.get(0);
                 for (int i = 1; i < tipos_matrix.size(); i++) {
                     if (!tipos_matrix.get(i).equals(tipo)) {
-                        System.out.println("Se esperaba un: " + tipo + " y se encontro un: " + ids.get(i));
+                        System.out.println("Se esperaba un: " + tipo + " y se encontro un: " + tipos_matrix.get(i));
                     }
                 }
-                return "matrix_" + tipo.substring(tipo.indexOf("_") + 1);
+                return "matrix_" + tipo.substring(tipo.indexOf("_") + 1, tipo.indexOf("{"))
+                        + "{" + tipos_matrix.size() + "," + tipo.substring(tipo.indexOf("{") + 1, tipo.indexOf("}")) + "}";
             } else if (n.nombre.equals("ARRAY")) {
                 ids2 = new ArrayList<String>();
                 array(n);
@@ -203,10 +225,16 @@ public class Interfaz extends javax.swing.JFrame {
                         System.out.println("Se esperaba un: " + tipo + " y se encontro un: " + ids2.get(i));
                     }
                 }
-                return "array_" + tipo;
-            } else {
+                return "array_" + tipo + "{" + ids2.size() + "}";
+            } else if (n.valor.equals("+")
+                    || n.valor.equals("-")
+                    || n.valor.equals("*")
+                    || n.valor.equals("/")) {
                 comprueba_op(n);
                 return "int";
+            } else {
+                comprueba_op_bool(n);
+                return "bool";
             }
         }
         return "int";
@@ -225,8 +253,18 @@ public class Interfaz extends javax.swing.JFrame {
                         System.out.println("Se esperaba un: " + ti + " y se encontro un: " + ids2.get(j));
                     }
                 }
-                ti = "array_" + ti;
+                ti = "array_" + ti + "{" + ids2.size() + "}";
                 tipos_matrix.add(ti);
+            }
+        }
+    }
+
+    public static void params(Node n) {
+        for (int i = 0; i < n.hijos.size(); i++) {
+            if (!n.hijos.get(i).nombre.equals("LISTA PARAMETROS")) {
+                param.add(tipo_valoro(n.hijos.get(i)));
+            } else {
+                params(n.hijos.get(i));
             }
         }
     }
@@ -257,18 +295,53 @@ public class Interfaz extends javax.swing.JFrame {
         }
     }
 
+    public static void comprueba_op_bool(Node act) {
+        if (act.valor.equals("|")
+                || act.valor.equals("&")) {
+            String t = tipo_valoro(act.hijos.get(0));
+            String t1 = tipo_valoro(act.hijos.get(1));
+            if (!t.equals("bool") || !t1.equals("bool")) {
+                System.out.println("Comparacion Booleana utilizando: " + t + " y " + t1 + ", en vez de bools");
+            }
+        } else if (act.valor.equals("<")
+                || act.valor.equals(">")
+                || act.valor.equals("<=")
+                || act.valor.equals(">=")
+                || act.valor.equals("!=")
+                || act.valor.equals("==")) {
+            String t = tipo_valoro(act.hijos.get(0));
+            String t1 = tipo_valoro(act.hijos.get(1));
+            if (!t.equals("int") || !t1.equals("int")) {
+                System.out.println("Comparacion Relacional utilizando: " + t + " y " + t1 + ", en vez de ints");
+            }
+        } else if (act.nombre.equals("VALOR OP BOOL")) {
+            if (act.hijos.size() == 3) {
+                String x = tipo_valoro(act.hijos.get(1));
+                if (!x.equals("bool")) {
+                    System.out.println("ERRORRRR");
+                }
+            } else {
+                String x = tipo_valoro(act.hijos.get(2));
+                if (!x.equals("bool")) {
+                    System.out.println("ERRORRRR");
+                }
+            }
+        }
+    }
+
     public static void llenar_tabla(Node actual) {
         if (actual.nombre.equals("DECLARACION")) {
-            //FALTA DECLARACION CON ASIGNACION
-            //FALTA CONDICIONES
-            //FALTA CAMBIAR READ
-            //FALTA MANEJAR RETURNS
+            //FALTA CAMBIAR READ read_int?
+            //FALTA MANEJAR RETURNS (imposible parece)
+            //OPERACIONES EN CONDICIONES (imposible)
+            //OFFSET
+            //AMBITO
             String tipo = "";
             ids = new ArrayList<String>();
             tipo = actual.hijos.get(0).valor;
             agregar_ids(actual.hijos.get(1));
             for (int j = 0; j < ids.size(); j++) {
-                agregar(new Entry(ids.get(j), tipo, ""));
+                agregar(new Entry(ids.get(j), tipo, ambito, offset));
             }
             ids = new ArrayList<String>();
             tipos_asig(actual.hijos.get(1), tipo);
@@ -277,12 +350,14 @@ public class Interfaz extends javax.swing.JFrame {
             String id_funcion = "";
             String dominio = "void";
             ids = new ArrayList<String>();
+            ids_params = new ArrayList<String>();
             tipo_retorno = actual.hijos.get(0).valor;
             id_funcion = actual.hijos.get(1).valor;
             if (actual.hijos.get(2).nombre.equals("LISTA PARAMETROS")) {
                 agregar_params(actual.hijos.get(2));
                 dominio = "";
                 for (int i = 0; i < ids.size(); i++) {
+                    agregar(new Entry(ids_params.get(i), ids.get(i), id_funcion, offset));
                     if (i + 1 < ids.size()) {
                         dominio += ids.get(i) + " x ";
                     } else {
@@ -291,11 +366,11 @@ public class Interfaz extends javax.swing.JFrame {
                 }
             }
             dominio += " -> " + tipo_retorno;
-            agregar(new Entry(id_funcion, dominio, ""));
+            agregar(new Entry(id_funcion, dominio, id_funcion, 0));
             ids = new ArrayList<String>();
         } else if (actual.nombre.equals("BLOQUE FOR")) {
             if (actual.hijos.get(0).valor.equals("int")) {
-                agregar(new Entry(actual.hijos.get(1).valor, actual.hijos.get(0).valor, ""));
+                agregar(new Entry(actual.hijos.get(1).valor, actual.hijos.get(0).valor, ambito, offset));
             }
             if (!tipo_valoro(actual.hijos.get(3)).equals("int")) {
                 System.out.println("Error en el for, se esperaba un int como limite superior");
@@ -311,16 +386,16 @@ public class Interfaz extends javax.swing.JFrame {
                     if (!t.equals(actual.hijos.get(1).valor)) {
                         System.out.println("La variable: " + actual.hijos.get(0).valor + ", no es del tipo: " + actual.hijos.get(1).valor);
                     } else {
-                        if(!actual.hijos.get(2).nombre.equals("BLOQUE DEFAULT OPTION")){
+                        if (!actual.hijos.get(2).nombre.equals("BLOQUE DEFAULT OPTION")) {
                             ids = new ArrayList<String>();
                             options(actual.hijos.get(2));
                             String toption = ids.get(0);
                             for (int i = 1; i < ids.size(); i++) {
-                                if(!toption.equals(ids.get(i))){
+                                if (!toption.equals(ids.get(i))) {
                                     System.out.println("Los tipos de las opciones no son congruentes");
                                 }
                             }
-                            if(!actual.hijos.get(1).valor.equals(toption)){
+                            if (!actual.hijos.get(1).valor.equals(toption)) {
                                 System.out.println("El BLOQUE OPTIONS esperaba casos del tipo: " + actual.hijos.get(1) + " y se encontro con casos de tipo: " + toption);
                             }
                             ids = new ArrayList<String>();
@@ -354,21 +429,66 @@ public class Interfaz extends javax.swing.JFrame {
             } else {
                 System.out.println("La variable: " + actual.hijos.get(0).valor + ", no ha sido declarada");
             }
+        } else if (actual.nombre.equals("BLOQUE IF")) {
+            String t = tipo_valoro(actual.hijos.get(0));
+
+            if (!t.equals("bool")) {
+                System.out.println("Error de tipo, se esperaba un bool, y se encontro un: " + t);
+            }
+        } else if (actual.nombre.equals("BLOQUE ELSE IF")) {
+            String t = tipo_valoro(actual.hijos.get(0));
+
+            if (!t.equals("bool")) {
+                System.out.println("Error de tipo, se esperaba un bool, y se encontro un: " + t);
+            }
+        } else if (actual.nombre.equals("BLOQUE LOOP")) {
+            String t = tipo_valoro(actual.hijos.get(0));
+
+            if (!t.equals("bool")) {
+                System.out.println("Error de tipo, se esperaba un bool, y se encontro un: " + t);
+            }
         }
         for (int i = 0; i < actual.hijos.size(); i++) {
+            if (actual.nombre.equals("FUNCION")) {
+                ambito = actual.hijos.get(1).valor;
+                offset = 0;
+            } else if (actual.nombre.equals("MAIN")) {
+                if (actual.hijos.get(i).nombre.equals("CODE")) {
+                    ambito = "main";
+                    offset = 0;
+                }
+            } else if (actual.nombre.equals("BLOQUE IF")
+                    || actual.nombre.equals("BLOQUE ELSE IF")
+                    || actual.nombre.equals("BLOQUE ELSE")
+                    || actual.nombre.equals("BLOQUE OPTION")
+                    || actual.nombre.equals("BLOQUE DEFAULT OPTION")
+                    || actual.nombre.equals("BLOQUE LOOP")
+                    || actual.nombre.equals("BLOQUE FOR")) {
+                System.out.println(actual.nombre);
+                ambito += "," + contador_ambito;
+                contador_ambito++;
+                flag_ambito = true;
+            }
             if (!actual.hijos.get(i).hijos.isEmpty()) {
                 llenar_tabla(actual.hijos.get(i));
             }
+            if (flag_ambito) {
+                ambito = ambito.substring(0, ambito.lastIndexOf(","));
+                flag_ambito = false;
+            }
+
         }
     }
-    public static void options(Node n){
+
+    public static void options(Node n) {
         ids.add(tipo_valoro(n.hijos.get(0)));
         for (int i = 1; i < n.hijos.size(); i++) {
-            if(n.hijos.get(i).nombre.equals("BLOQUE OPTION")){
+            if (n.hijos.get(i).nombre.equals("BLOQUE OPTION")) {
                 options(n.hijos.get(i));
             }
         }
     }
+
     public static String get_tipo(String s) {
         for (int i = 0; i < tabla_simbolos.size(); i++) {
             if (s.equals(tabla_simbolos.get(i).id)) {
@@ -406,6 +526,9 @@ public class Interfaz extends javax.swing.JFrame {
         for (int i = 0; i < actual.hijos.size(); i++) {
             if (actual.hijos.get(i).nombre.equals("TYPE")) {
                 ids.add(actual.hijos.get(i).valor);
+                //agregar(new Entry(actual.hijos.get(i+1).valor, actual.hijos.get(i).valor, ""));
+            } else if (actual.hijos.get(i).nombre.equals("ID")) {
+                ids_params.add(actual.hijos.get(i).valor);
             } else if (actual.hijos.get(i).nombre.equals("PARAMETROS TIPADOS")) {
                 agregar_params(actual.hijos.get(i));
             }
@@ -430,10 +553,11 @@ public class Interfaz extends javax.swing.JFrame {
 
             } else if (actual.hijos.get(i).nombre.equals("LISTA DE VARIABLES")) {
                 agregar_ids(actual.hijos.get(i));
-            } 
+            }
         }
     }
-    public static void tipos_asig(Node actual, String tipo){
+
+    public static void tipos_asig(Node actual, String tipo) {
         for (int i = 0; i < actual.hijos.size(); i++) {
             if (!actual.hijos.get(i).valor.equals("<non-terminal>")) {
                 boolean esta = false;
@@ -450,9 +574,9 @@ public class Interfaz extends javax.swing.JFrame {
                 tipos_asig(actual.hijos.get(i), tipo);
             } else {
                 //DECLARACION CON ASIGNACION
-                String t = tipo_valoro(actual.hijos.get(i).hijos.get(1)); 
-                if(!t.equals(tipo)){
-                    System.out.println("Error, la variable: " + ids.get(ids.size()-1) + " es del tipo " + tipo + " y se le esta asignando: " + t);
+                String t = tipo_valoro(actual.hijos.get(i).hijos.get(1));
+                if (!t.equals(tipo)) {
+                    System.out.println("Error, la variable: " + ids.get(ids.size() - 1) + " es del tipo " + tipo + " y se le esta asignando: " + t);
                 }
             }
         }
@@ -515,7 +639,9 @@ public class Interfaz extends javax.swing.JFrame {
                 root = parser.raiz;
                 llenar_tabla(root);
                 for (int i = 0; i < tabla_simbolos.size(); i++) {
-                    System.out.println("ID: " + tabla_simbolos.get(i).id + " TIPO: " + tabla_simbolos.get(i).tipo);
+                    System.out.println("ID: " + tabla_simbolos.get(i).id
+                            + " TIPO: " + tabla_simbolos.get(i).tipo
+                            + " AMBITO: " + tabla_simbolos.get(i).ambito);
                 }
                 return 1;
             } else {
@@ -617,7 +743,7 @@ public class Interfaz extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                //generateLexer();
+                generateLexer();
                 new Interfaz().setVisible(true);
             }
         });
