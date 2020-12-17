@@ -259,7 +259,7 @@ non terminal FUNCION, FUNCION2, DECLARACION, ASIGNACION, IFCOND, ELSECOND, FORCO
     LOOPCOND, OPTIONSCOND, MAINCOND, PRINTCOND, OPERACION, CONDICION, 
     CODE, LISTAPARAM, LISTATYPES, DECL, DECL2, OPTT, PRINTER, OP1, 
     OP2, COND1, COND2, COND3, COND4, RETORNO, VALOR, ARREGLO, MATRIZ, VALOR1,
-    ARREGLO1, MATRIZ1, VALORO, LLAMADO, PARAMS, PARAMS1, ORIGIN, READCOND, ACCEDERM, LISTIN, SIZE;
+    ARREGLO1, MATRIZ1, VALORO, LLAMADO, PARAMS, PARAMS1, ORIGIN, READCOND, ACCEDERM, LISTIN, SIZE, M;
 
 precedence left OPMD;
 precedence left OPSR;
@@ -395,15 +395,31 @@ DECL2 ::= ASIG VALORO:v
           |  ;
 
 
-ASIGNACION ::= ID:i ASIG VALORO:v FINLINE
+ASIGNACION ::= ID:i M:m ASIG VALORO:v FINLINE
                {:
                 Node asignacion = new Node("ASIGNACION");
                 asignacion.addNode(new Node("ID", ((String) i)));
+                asignacion.addNode(m);
                 asignacion.addNode(new Node("ASIG", "="));
                 asignacion.addNode(v);
                 //asignacion.addNode(new Node("FINLINE", ";"));
                 RESULT = asignacion;
                :} | ID error:e {: parser.error += "ASIGNACION\n";parser.Asignacion_Error(); :};
+
+M ::= ABRECOR VALORO:v1 COMA VALORO:v2 CIERRACOR
+      {:
+        Node m = new Node("ASIG MATRIZ");
+        m.addNode(v1);
+        m.addNode(v2);
+        RESULT = m;
+      :}
+      | ABRECOR VALORO:v1 CIERRACOR
+      {:
+        Node m = new Node("ASIG ARRAY");
+        m.addNode(v1);
+        RESULT = m;
+      :}
+      | ;
 
 IFCOND ::= IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDI
            {:

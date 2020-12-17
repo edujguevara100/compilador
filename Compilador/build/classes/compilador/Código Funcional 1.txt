@@ -1,50 +1,8 @@
-func int _funcion (int _a, char _y, bool _t) begin
-        if (_a > _a) begin 
-            char _e;
-        end if
-	int _i = 1, _j = _i, _c = 2+2;
-        matrix_bool{1,2} _f;
-        matrix_bool{3,2} _k = {{true, false}, {false, true}, {true, true}};
-        matrix_int{2,2} _b = {{1,2}, {3,4}};
-        int _h = _funcion(1, 'a', false) + 5;
-        bool _m = true;
-        read _i;
-        array_char{3} _l = {'a', 'j', 'x'}, _u, _g = {'a', 'b', 'c'};
-	_i = 2 +_b[1, 0];
-        _f = {{true, false}};
-	if ((_i > _j) & !(true | false)) begin 
-		if(true) begin 
-			_i = 2*5/2+3;
-		end if	
-	end if
-	else begin 
-		for(int _q -> 2, _q++) begin 
-                    if(true) begin   
-                        int _z;
-                    end if
-		end for
-	end else
-        return _i;
-end func
 func int_main() begin
         bool _x;
         int _i;
-	loop (true & false | !(_x)) begin
-            int _n;
-            _funcion(_b, 5+5, false);
-	end loop
-	options (_i , int) begin
-		opt [1]{
-			_i = 2;
-			print(true);
-		}
-                opt [2]{
-                    bool _w;
-                }
-		opt_def {
-                        int _j;
-			_j = 3;
-		}
-	end options
+        loop(_i>_i) begin
+            _i = _i + 1;
+        end loop
 	return 0; 
 end main 
