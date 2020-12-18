@@ -434,21 +434,7 @@ IFCOND ::= IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDI
             RESULT = ifcond;
            :} | IF error:e {: parser.error+="IF\n";parser.If_Error(); :};
 
-ELSECOND ::= ELSE IF ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDE ELSECOND:e
-             {:
-                Node elsecond = new Node("BLOQUE ELSE IF");
-               // elsecond.addNode(new Node("ELSE", "else"));
-               // elsecond.addNode(new Node("IF", "if"));
-               // elsecond.addNode(new Node("ABREPAR", "("));
-                elsecond.addNode(c);
-               // elsecond.addNode(new Node("CIERRAPAR", ")"));
-               // elsecond.addNode(new Node("BEGIN", "begin"));
-                elsecond.addNode(code);
-                //elsecond.addNode(new Node("ENDE", "end else"));
-                elsecond.addNode(e);
-                RESULT = elsecond;
-             :}
-             | ELSE BEGIN CODE:c ENDE
+ELSECOND ::= ELSE BEGIN CODE:c ENDE
              {:
                 Node elsecond = new Node("BLOQUE ELSE");
                // elsecond = new Node("ELSE", "else");

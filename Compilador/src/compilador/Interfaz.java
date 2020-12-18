@@ -35,7 +35,7 @@ public class Interfaz extends javax.swing.JFrame {
         panel2.setVisible(false);
     }
     public static FileReader fr = null, fr2 = null;
-    public static Node root, padre;
+    public static Node root, padre, options_father;
     DefaultMutableTreeNode arbol;
     public static ArrayList<Entry> tabla_simbolos = new ArrayList<Entry>();
     public static ArrayList<String> ids, ids2, param;
@@ -46,6 +46,8 @@ public class Interfaz extends javax.swing.JFrame {
     public static boolean flag_ambito = false, concat = false;
     public static ArrayList<Cuadruplo> cuads = new ArrayList<Cuadruplo>();
     public static int temporales = 0, cantparam = 0, etiquetas = 0;
+    public static ArrayList<String> mensajes = new ArrayList<String>();
+    public static String id_options = "";
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -803,6 +805,27 @@ public class Interfaz extends javax.swing.JFrame {
 
     public static void cuadruplos(Node root) {
         boolean skip = false;
+        boolean main = false;
+        boolean code_block = false;
+        boolean falta = false;
+        boolean func = false;
+        if (root.nombre.equals("CODE")) {
+            if (root.hijos.get(0).nombre.equals("BLOQUE IF")
+                    || root.hijos.get(0).nombre.equals("BLOQUE FOR")
+                    || root.hijos.get(0).nombre.equals("BLOQUE LOOP")
+                    || root.hijos.get(0).nombre.equals("BLOQUE OPTIONS")) {
+                code_block = true;
+                root.siguiente = etiqnueva();
+                root.hijos.get(0).siguiente = root.siguiente;
+            }
+            if (root.hijos.size() > 1) {
+                if (root.hijos.get(1).nombre.equals("BLOQUE ELSE")) {
+                    code_block = true;
+                    String siguiente = etiqnueva();
+                    root.hijos.get(1).siguiente = siguiente;
+                }
+            }
+        }
         if (root.nombre.equals("ASIGNACION")) {
             if (root.hijos.size() == 3) {
                 genCodOP(root.hijos.get(2));
@@ -864,55 +887,17 @@ public class Interfaz extends javax.swing.JFrame {
                     cuadruplos(root.hijos.get(1));
                 } else {
                     //if con else o else if
-                    System.out.println("ANIDADOS");
                     root.hijos.get(0).verdadera = etiqnueva();
                     root.hijos.get(0).falsa = etiqnueva();
                     genCodBOOL(root.hijos.get(0));
                     cuads.add(new Cuadruplo("ETIQ", root.hijos.get(0).verdadera, "", ""));
                     root.hijos.get(1).siguiente = root.siguiente;
-                    Node f = padre;
+                    padre.hijos.get(1).siguiente = padre.siguiente;
                     cuadruplos(root.hijos.get(1));
                     cuads.add(new Cuadruplo("GOTO", root.siguiente, "", ""));
                     cuads.add(new Cuadruplo("ETIQ", root.hijos.get(0).falsa, "", ""));
-                    f.hijos.get(1).siguiente = root.siguiente;
-                    cuadruplos(f.hijos.get(1));
-                }
-            }
-        } else if (root.nombre.equals("BLOQUE ELSE IF")) {
-            skip = true;
-            if (root.hijos.size() > 1) {
-                if (root.hijos.size() == 3) {
-                    //Tiene mas cosas anidadas
-                    root.hijos.get(0).verdadera = etiqnueva();
-                    root.hijos.get(0).falsa = etiqnueva();
-                    genCodBOOL(root.hijos.get(0));
-                    cuads.add(new Cuadruplo("ETIQ", root.hijos.get(0).verdadera, "", ""));
-                    root.hijos.get(1).siguiente = root.siguiente;
-                    cuadruplos(root.hijos.get(1));
-                    cuads.add(new Cuadruplo("GOTO", root.siguiente, "", ""));
-                    cuads.add(new Cuadruplo("ETIQ", root.hijos.get(0).falsa, "", ""));
-                    root.hijos.get(2).siguiente = root.siguiente;
-                    cuadruplos(root.hijos.get(2));
-                } else {
-                    if (root.hijos.get(1).nombre.equals("CODE")) {
-                        //Termina en el else if
-                        root.hijos.get(0).verdadera = etiqnueva();
-                        root.hijos.get(0).falsa = root.siguiente;
-                        genCodBOOL(root.hijos.get(0));
-                        cuads.add(new Cuadruplo("ETIQ", root.hijos.get(0).verdadera, "", ""));
-                        root.hijos.get(1).siguiente = root.siguiente;
-                        cuadruplos(root.hijos.get(1));
-                    } else {
-                        //Tiene mas cosas anidadas
-                        root.hijos.get(0).verdadera = etiqnueva();
-                        root.hijos.get(0).falsa = etiqnueva();
-                        genCodBOOL(root.hijos.get(0));
-                        cuads.add(new Cuadruplo("ETIQ", root.hijos.get(0).verdadera, "", ""));
-                        cuads.add(new Cuadruplo("GOTO", root.siguiente, "", ""));
-                        cuads.add(new Cuadruplo("ETIQ", root.hijos.get(0).falsa, "", ""));
-                        root.hijos.get(1).siguiente = root.siguiente;
-                        cuadruplos(root.hijos.get(1));
-                    }
+                    //f.hijos.get(1).siguiente = root.siguiente;
+                    //cuadruplos(f.hijos.get(1));
                 }
             }
         } else if (root.nombre.equals("BLOQUE LOOP")) {
@@ -926,6 +911,47 @@ public class Interfaz extends javax.swing.JFrame {
             root.hijos.get(1).siguiente = root.comienzo;
             cuadruplos(root.hijos.get(1));
             cuads.add(new Cuadruplo("GOTO", root.comienzo, "", ""));
+        } else if (root.nombre.equals("BLOQUE FOR")) {
+            skip = true;
+            cuads.add(new Cuadruplo("=", "0", "", root.hijos.get(1).valor));
+            root.comienzo = etiqnueva();
+            cuads.add(new Cuadruplo("ETIQ", root.comienzo, "", ""));
+            genCodOP(root.hijos.get(3));
+            String verdadera = etiqnueva();
+            cuads.add(new Cuadruplo("if <=", root.hijos.get(1).valor, root.hijos.get(3).lugar, verdadera));
+            cuads.add(new Cuadruplo("GOTO", root.siguiente, "", ""));
+            root.asig = etiqnueva();
+            root.hijos.get(7).siguiente = root.asig;
+            cuads.add(new Cuadruplo("ETIQ", verdadera, "", ""));
+            cuadruplos(root.hijos.get(7));
+            cuads.add(new Cuadruplo("ETIQ", root.asig, "", ""));
+            cuads.add(new Cuadruplo("+", root.hijos.get(1).valor, "1", root.hijos.get(1).valor));
+            cuads.add(new Cuadruplo("GOTO", root.comienzo, "", ""));
+        } else if (root.nombre.equals("PRINT")) {
+            if (root.hijos.get(0).nombre.equals("STRING")) {
+                String m = mensaje(root.hijos.get(0).valor);
+                cuads.add(new Cuadruplo("print", m, "string", ""));
+            } else {
+                genCodOP(root.hijos.get(0));
+                cuads.add(new Cuadruplo("print", root.hijos.get(0).lugar, tipo_valoro(root.hijos.get(0)), ""));
+            }
+        } else if (root.nombre.equals("READ")) {
+            cuads.add(new Cuadruplo("read", root.hijos.get(0).valor, get_tipo2(root.hijos.get(0).valor), ""));
+        } else if (root.nombre.equals("RETURN")) {
+            genCodOP(root.hijos.get(0));
+            cuads.add(new Cuadruplo("RET", root.hijos.get(0).lugar, "", ""));
+        } else if (root.nombre.equals("BLOQUE OPTIONS")) {
+            skip = true;
+            id_options = root.hijos.get(0).valor;
+            options_father = root;
+            options_father.comienzo = etiqnueva();
+            root.hijos.get(2).siguiente = root.siguiente;
+            optionsblock(root.hijos.get(2));
+        } else if (root.nombre.equals("MAIN")) {
+            main = true;
+        } else if (root.nombre.equals("FUNCION")) {
+            func = true;
+            cuads.add(new Cuadruplo("F_ETIQ", root.hijos.get(1).valor, "", ""));
         }
         for (int i = 0; i < root.hijos.size(); i++) {
             if (root.nombre.equals("CODE")) {
@@ -936,19 +962,78 @@ public class Interfaz extends javax.swing.JFrame {
                     }
                 }
             }
+            if (code_block) {
+                if (i == root.hijos.size() - 1 && !root.hijos.get(i).nombre.equals("CODE")) {
+                    falta = true;
+                }
+                if (root.hijos.get(i).nombre.equals("CODE")) {
+                    cuads.add(new Cuadruplo("ETIQ", root.siguiente, "", ""));
+                    falta = false;
+                }
+            } else {
+                if (root.hijos.get(i).nombre.equals("CODE")) {
+                    root.hijos.get(i).siguiente = root.siguiente;
+                }
+            }
+            if (main && root.hijos.get(i).nombre.equals("CODE")) {
+                cuads.add(new Cuadruplo("F_ETIQ", "main", "", ""));
+            }
             if (!skip) {
                 cuadruplos(root.hijos.get(i));
             }
         }
+        if(func){
+            cuads.add(new Cuadruplo("E_ETIQ", root.hijos.get(1).valor, "", ""));
+        }
+        if (falta) {
+            cuads.add(new Cuadruplo("ETIQ", root.siguiente, "", ""));
+        }
+        if (main) {
+            cuads.add(new Cuadruplo("E_ETIQ", "fin_main", "", ""));
+        }
+    }
+
+    public static void optionsblock(Node opt) {
+        if (opt.nombre.equals("BLOQUE OPTION")) {
+            cuads.add(new Cuadruplo("ETIQ", options_father.comienzo, "", ""));
+            opt.verdadera = etiqnueva();
+            genCodOP(opt.hijos.get(0));
+            cuads.add(new Cuadruplo("if ==", id_options, opt.hijos.get(0).lugar, opt.verdadera));
+            opt.comienzo = etiqnueva();
+            cuads.add(new Cuadruplo("GOTO", opt.comienzo, "", ""));
+            opt.hijos.get(1).siguiente = opt.siguiente;
+            cuads.add(new Cuadruplo("ETIQ", opt.verdadera, "", ""));
+            cuadruplos(opt.hijos.get(1));
+            cuads.add(new Cuadruplo("GOTO", opt.siguiente, "", ""));
+            options_father = opt;
+            opt.hijos.get(2).siguiente = opt.siguiente;
+            optionsblock(opt.hijos.get(2));
+        } else {
+            cuads.add(new Cuadruplo("ETIQ", options_father.comienzo, "", ""));
+            opt.hijos.get(0).siguiente = opt.siguiente;
+            cuadruplos(opt.hijos.get(0));
+            //bloque default options
+        }
+    }
+
+    public static String mensaje(String str) {
+        int pos = -1;
+        if (mensajes.contains(str)) {
+            pos = mensajes.indexOf(str);
+        } else {
+            mensajes.add(str);
+            pos = mensajes.size() - 1;
+        }
+        return "" + pos;
     }
 
     public static void genCodBOOL(Node root) {
-        if(root.nombre.equals("VALOR OP BOOL")){
-            if(root.hijos.size() == 4){
+        if (root.nombre.equals("VALOR OP BOOL")) {
+            if (root.hijos.size() == 4) {
                 root.hijos.get(2).verdadera = root.falsa;
                 root.hijos.get(2).falsa = root.verdadera;
                 genCodBOOL(root.hijos.get(2));
-            }else{
+            } else {
                 root.hijos.get(1).verdadera = root.verdadera;
                 root.hijos.get(1).falsa = root.falsa;
                 genCodBOOL(root.hijos.get(2));

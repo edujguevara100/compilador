@@ -1,8 +1,33 @@
+func int _f() begin
+    int _i;
+    bool _x;
+    if (_i > _i) begin
+        _x = true;
+        if(_i == _i) begin
+            print("Son iguales");
+        end if
+        else begin
+        print("Son distintos");
+        end else
+        _i = _i;
+    end if
+    return _i;
+end func
 func int_main() begin
         bool _x;
         int _i;
-        loop(_i>_i) begin
-            _i = _i + 1;
-        end loop
+        options (_i , int) begin
+		opt [1]{
+			_i = 2;
+			print(true);
+		}
+                opt [2]{
+                    read _x;
+                }
+		opt_def {
+                        int _j;
+			_j = 3;
+		}
+	end options
 	return 0; 
 end main 

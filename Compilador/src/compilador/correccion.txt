@@ -1,1 +1,1 @@
-func int_main() begin bool _x ; int _i ; if ( _a > _a ) begin char _e ; = 'e' ; end if return 0 ; end main 
+func int_main() begin bool _x ; int _i ; options ( _i , int ) begin opt [ 1 ] { _i = 2 ; print ( true ) ; } opt [ 2 ] { read _x ; } opt_def { int _j ; _j = 3 ; } end options if ( _i > _i ) begin _x = true ; if ( _i == _i ) begin print ( "Son iguales" ) ; end if else begin print ( "Son distintos" ) ; end else = _i ; end if return 0 ; end main 

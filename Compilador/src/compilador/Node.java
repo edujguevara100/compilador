@@ -20,6 +20,7 @@ public class Node {
     public String falsa = "";
     public String siguiente = "";
     public String comienzo = "";
+    public String asig = "";
     
     public Node(String nombre) {
         this.nombre = nombre;
