@@ -21,6 +21,8 @@ public class Node {
     public String siguiente = "";
     public String comienzo = "";
     public String asig = "";
+    public int linea = 0;
+    public int columna = 0;
     
     public Node(String nombre) {
         this.nombre = nombre;
