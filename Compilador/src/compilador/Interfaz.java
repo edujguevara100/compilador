@@ -195,7 +195,7 @@ public class Interfaz extends javax.swing.JFrame {
         if (n.hijos.isEmpty()) {
             if (n.valor.contains("_")) {
                 if (existe(n.valor)) {
-                    return get_tipo(n.valor);
+                    return get_tipo2(n.valor);
                 } else {
                     System.out.println("La variable: " + n.valor + " no ha sido declarada");
                     return "int";
@@ -211,7 +211,7 @@ public class Interfaz extends javax.swing.JFrame {
             if (n.valor.contains("_")) {
                 //Funcion o Elemento de Matriz/Arreglo
                 if (existe(n.valor)) {
-                    String t = get_tipo(n.valor);
+                    String t = get_tipo2(n.valor);
                     if (t.equals("int") || t.equals("bool") || t.equals("char")) {
                         System.out.println(n.valor + " es del tipo: " + t + ", no es funcion ni arreglo ni matriz");
                         return t;
@@ -461,7 +461,7 @@ public class Interfaz extends javax.swing.JFrame {
             //FALTA VALORO PARA LAS OPT INDIVIDUALES
             if (actual.hijos.get(1).valor.equals("int") || actual.hijos.get(1).valor.equals("char")) {
                 if (existe(actual.hijos.get(0).valor)) {
-                    String t = get_tipo(actual.hijos.get(0).valor);
+                    String t = get_tipo2(actual.hijos.get(0).valor);
                     if (!t.equals(actual.hijos.get(1).valor)) {
                         System.out.println("La variable: " + actual.hijos.get(0).valor + ", no es del tipo: " + actual.hijos.get(1).valor);
                     } else {
@@ -494,21 +494,21 @@ public class Interfaz extends javax.swing.JFrame {
         } else if (actual.nombre.equals("LLAMADA FUNCION")) {
             if (existe(actual.hijos.get(0).valor)) {
                 //Comprobar tipos
-                String t = get_tipo(actual.hijos.get(0).valor);
+                String t = get_tipo2(actual.hijos.get(0).valor);
             } else {
                 System.out.println("La funcion: " + actual.hijos.get(0).valor + " no existe");
             }
         } else if (actual.nombre.equals("ASIGNACION")) {
             if (existe(actual.hijos.get(0).valor)) {
                 if (actual.hijos.size() == 3) {
-                    String te = get_tipo(actual.hijos.get(0).valor);
+                    String te = get_tipo2(actual.hijos.get(0).valor);
                     String to = tipo_valoro(actual.hijos.get(2));
                     if (!to.equals(te)) {
                         System.out.println("Error de tipo, se esperaba: " + te + " y se encontro: " + to);
                     }
                 } else {
                     //Ver M si tiene uno o dos hijos
-                    String ttt = get_tipo(actual.hijos.get(0).valor);
+                    String ttt = get_tipo2(actual.hijos.get(0).valor);
                     if (ttt.contains("array") || ttt.contains("matrix")) {
                         if (actual.hijos.get(1).hijos.size() == 1) {
                             String te = tipo_valoro(actual.hijos.get(1).hijos.get(0));
@@ -516,7 +516,7 @@ public class Interfaz extends javax.swing.JFrame {
                                 System.out.println("Error, el indice de: " + actual.hijos.get(0).valor + " debe ser entero");
                             } else {
                                 String to = tipo_valoro(actual.hijos.get(3));
-                                String tipo = get_tipo(actual.hijos.get(0).valor);
+                                String tipo = get_tipo2(actual.hijos.get(0).valor);
                                 if (tipo.contains("matrix")) {
                                     tipo = "array_" + tipo.substring(tipo.indexOf("_") + 1, tipo.indexOf("{") + 1)
                                             + tipo.substring(tipo.indexOf(",") + 1);
@@ -529,7 +529,7 @@ public class Interfaz extends javax.swing.JFrame {
                             }
                         }
                         if (actual.hijos.get(1).hijos.size() == 2) {
-                            String tipo = get_tipo(actual.hijos.get(0).valor);
+                            String tipo = get_tipo2(actual.hijos.get(0).valor);
                             if (tipo.contains("matrix")) {
                                 String te = tipo_valoro(actual.hijos.get(1).hijos.get(0));
                                 String to = tipo_valoro(actual.hijos.get(1).hijos.get(1));
@@ -607,17 +607,16 @@ public class Interfaz extends javax.swing.JFrame {
         }
     }
 
-    public static String get_tipo(String s) {
+    /*public static String get_tipo(String s) {
         for (int i = 0; i < tabla_simbolos.size(); i++) {
             if (s.equals(tabla_simbolos.get(i).id)) {
-                if (ambito.contains(tabla_simbolos.get(i).ambito)) {
+                 
                     return tabla_simbolos.get(i).tipo;
-                }
+                
             }
         }
         return "";
-    }
-
+    }*/
     public static String get_tipo2(String s) {
         for (int i = 0; i < tabla_simbolos.size(); i++) {
             if (s.equals(tabla_simbolos.get(i).id)) {
@@ -630,7 +629,9 @@ public class Interfaz extends javax.swing.JFrame {
     public static boolean existe(String s) {
         for (int i = 0; i < tabla_simbolos.size(); i++) {
             if (s.equals(tabla_simbolos.get(i).id)) {
-                if (ambito.contains(tabla_simbolos.get(i).ambito)) {
+                if (ambito.contains(tabla_simbolos.get(i).ambito)
+                        || tabla_simbolos.get(i).parametros == 1
+                        || tabla_simbolos.get(i).offset == -1) {
                     return true;
                 }
             }
@@ -1005,10 +1006,10 @@ public class Interfaz extends javax.swing.JFrame {
                                         if (tabla_simbolos.get(j).descriptor.equals("")) {
                                             pos = pos + tabla_simbolos.get(j).offset;
                                             var += pos + "($fp)";
-                                            txt += "    li $v0, 1\n    lb $a0, " + var + "\n    syscall\n";
+                                            txt += "    li $v0, 11\n    lb $a0, " + var + "\n    syscall\n";
                                             break;
                                         } else {
-                                            txt += "    li $v0, 1\n    move $a0, " + tabla_simbolos.get(j).descriptor + "\n    syscall\n";
+                                            txt += "    li $v0, 11\n    move $a0, " + tabla_simbolos.get(j).descriptor + "\n    syscall\n";
                                             break;
                                         }
                                     }
@@ -1016,7 +1017,7 @@ public class Interfaz extends javax.swing.JFrame {
                             } else {
                                 for (int j = 0; j < registros.size(); j++) {
                                     if (registros.get(j).valor.equals(cuads.get(i).op1)) {
-                                        txt += "    li $v0, 4\n    move $a0, " + registros.get(j).registro + "\n    syscall\n";
+                                        txt += "    li $v0, 11\n    move $a0, " + registros.get(j).registro + "\n    syscall\n";
                                     }
                                 }
                             }
@@ -1025,7 +1026,7 @@ public class Interfaz extends javax.swing.JFrame {
                         //int
                         txt += "    li $v0, 1\n    li $a0, " + cuads.get(i).op1 + "\n    syscall\n";
                     } else if (cuads.get(i).op2.equals("char")) {
-                        txt += "    li $v0, 4\n    li $a0, " + cuads.get(i).op1 + "\n    syscall\n";
+                        txt += "    li $v0, 11\n    addi $a0, $zero, " + cuads.get(i).op1 + "\n    syscall\n";
                     } else if (cuads.get(i).op2.equals("bool")) {
                         String val = "";
                         if (cuads.get(i).op1.equals("true")) {
@@ -1049,7 +1050,7 @@ public class Interfaz extends javax.swing.JFrame {
                     int sz = 1;
                     int p = stack + sz + off;
                     pos += p + "($fp)";
-                    txt += "    li $v0, 8\n    syscall\n    sb $v0, " + pos + "\n";
+                    txt += "    li $v0, 12\n    syscall\n    sb $v0, " + pos + "\n";
                 } else {
                     int sz = 4;
                     int p = stack + sz + off;
@@ -1250,7 +1251,7 @@ public class Interfaz extends javax.swing.JFrame {
                     }
                 } else {
                     //char
-                    txt += "    lb " + r + ", " + c.op1 + "\n";
+                    txt += "    addi " + r + ", $zero, " + c.op1 + "\n";
                 }
 
                 liberar1 = true;
@@ -1336,7 +1337,7 @@ public class Interfaz extends javax.swing.JFrame {
                     }
                 } else {
                     //char
-                    txt += "    lb " + r + ", " + c.op1 + "\n";
+                    txt += "    addi " + r + ", $zero, " + c.op1 + "\n";
                 }
                 liberar1 = true;
             }
@@ -1392,7 +1393,7 @@ public class Interfaz extends javax.swing.JFrame {
                     }
                 } else {
                     //char
-                    txt += "    lb " + r + ", " + c.op1 + "\n";
+                    txt += "    addi " + r + ", $zero, " + c.op1 + "\n";
                 }
                 liberar1 = true;
             }
@@ -1477,7 +1478,7 @@ public class Interfaz extends javax.swing.JFrame {
                 }
             } else {
                 //char
-                txt += "    lb " + r + ", " + c.op1 + "\n";
+                txt += "    addi " + r + ", $zero, " + c.op1 + "\n";
             }
 
             liberar1 = true;
@@ -1529,7 +1530,7 @@ public class Interfaz extends javax.swing.JFrame {
                 }
             } else {
                 //char
-                txt += "    lb " + r2 + ", " + c.op2 + "\n";
+                txt += "    addi " + r2 + ", $zero, " + c.op2 + "\n";
             }
         }
         //ya estan montados hacer la comparacion y liberar
@@ -1594,7 +1595,7 @@ public class Interfaz extends javax.swing.JFrame {
             } else if (c.op1.equals("false")) {
                 txt += "    li $v0, 0\n";
             } else if (c.op1.contains("'")) {
-                txt += "    li $v0, " + c.op1 + "\n";
+                txt += "    addi $v0, $zero, " + c.op1 + "\n";
             } else {
                 //Es un numero
                 txt += "    li $v0, " + c.op1 + "\n";
@@ -1641,8 +1642,21 @@ public class Interfaz extends javax.swing.JFrame {
         if (!esta) {
             //No es ni temporal ni variable
             r = nextTemp(c.op1);
-            txt += "    li " + r + ", " + c.op1 + "\n";
+            //txt += "    li " + r + ", " + c.op1 + "\n";
             liberar1 = true;
+            if (!esta) {
+                //Es un valor
+                if (c.op1.equals("true")) {
+                    txt += "    li " + r + ", 1\n";
+                } else if (c.op1.equals("false")) {
+                    txt += "    li " + r + ", 0\n";
+                } else if (c.op1.contains("'")) {
+                    txt += "    addi " + r + ", $zero, " + c.op1 + "\n";
+                } else {
+                    //Es un numero
+                    txt += "    li " + r + ", " + c.op1 + "\n";
+                }
+            }
         }
         String r2 = "";
         esta = false;
@@ -1680,8 +1694,21 @@ public class Interfaz extends javax.swing.JFrame {
         if (!esta) {
             //No es ni temporal ni variable
             r2 = nextTemp(c.op2);
-            txt += "    li " + r2 + ", " + c.op2 + "\n";
+            //txt += "    li " + r2 + ", " + c.op2 + "\n";
             liberar2 = true;
+            if (!esta) {
+                //Es un valor
+                if (c.op2.equals("true")) {
+                    txt += "    li " + r2 + ", 1\n";
+                } else if (c.op2.equals("false")) {
+                    txt += "    li " + r2 + ", 0\n";
+                } else if (c.op2.contains("'")) {
+                    txt += "    addi " + r2 + ", $zero, " + c.op2 + "\n";
+                } else {
+                    //Es un numero
+                    txt += "    li " + r2 + ", " + c.op2 + "\n";
+                }
+            }
         }
         //ya estan en registros los opeandos, falta operar y asignar
         //se guarda en un temporal nuevo
@@ -1920,7 +1947,7 @@ public class Interfaz extends javax.swing.JFrame {
                 genCodOP(root.hijos.get(1));
                 String t = tipo_valoro(root.hijos.get(1));
                 int sz = getSize(t);
-                String val = sz+"";
+                String val = sz + "";
                 cuads.add(new Cuadruplo("param", root.hijos.get(1).lugar, val, ""));
                 cuads.add(new Cuadruplo("call", root.hijos.get(0).valor, "1", ""));
             } else {

@@ -4,31 +4,28 @@ func int _potencia(int _a, int _b) begin
     end if
     return _a*_potencia(_a, _b - 1);
 end func
-func int _pruebaoptions(int _u) begin
+func int _pruebaoptions(char _u) begin
     /*print("TEST\n");*/
-    options (_u , int) begin
-	opt [1]{
-            print("El valor es 1\n");
+    options (_u , char) begin
+	opt ['a']{
+            print("El caracter es: a\n");
 	}
-        opt [2]{
-            print("El valor es 2\n");
+        opt ['b']{
+            print("El caracter es: b\n");
         }
 	opt_def {
-            print("El valor es: ");
+            print("El caracter es: ");
             print(_u);
         }
     end options
 end func
 func int_main() begin
-    /*int _p = _potencia(5, 3);*/
-    print("El resultado es:");
-    print(_potencia(5, 3));
-    print("\n");
-    _pruebaoptions(2);
     int _c = 5;
     loop (_c > 0) begin
         print(_c);
         print("\n");
         _c = _c - 1;
     end loop
+    char _o = 'x';
+    _pruebaoptions(_o);
 end main 
