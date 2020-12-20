@@ -1381,20 +1381,42 @@ public class Interfaz extends javax.swing.JFrame {
             if (!esta) {
                 //No es ni temporal ni variable
                 r = nextTemp(c.op1);
-                txt += "    li " + r + ", " + c.op1 + "\n";
+                if (!c.op1.contains("'")) {
+                    if (c.op1.equals("true")) {
+                        txt += "    li " + r + ", 1\n";
+                    } else if (c.op1.equals("false")) {
+                        txt += "    li " + r + ", 0\n";
+                    } else {
+                        //numero
+                        txt += "    li " + r + ", " + c.op1 + "\n";
+                    }
+                } else {
+                    //char
+                    txt += "    lb " + r + ", " + c.op1 + "\n";
+                }
                 liberar1 = true;
             }
             //ya esta en un registro lo que hay que guardar
             if (Integer.parseInt(c.op2) == 1) {
-                String pos = "-";
+                String pos = "";
                 int place = par_mem + 1;
                 pos += place + "($sp)";
+                pos = "0($sp)";
+                //txt += "    li $t8, " + place + "\n";
+                txt += "    add $t9, $sp, $zero\n";
+                txt += "    addi $sp, $sp, -" + place + "\n";
                 txt += "    sb " + r + ", " + pos + "\n";
+                txt += "    move $sp, $t9\n";
             } else {
-                String pos = "-";
+                String pos = "";
                 int place = par_mem + 4;
                 pos += place + "($sp)";
+                pos = "0($sp)";
+                //txt += "    li $t8, " + place + "\n";
+                txt += "    add $t9, $sp, $zero\n";
+                txt += "    addi $sp, $sp, -" + place + "\n";
                 txt += "    sw " + r + ", " + pos + "\n";
+                txt += "    move $sp, $t9\n";
             }
             if (liberar1) {
                 free(r);
@@ -1893,6 +1915,14 @@ public class Interfaz extends javax.swing.JFrame {
                 cuads.add(new Cuadruplo("call", root.hijos.get(0).valor, "0", ""));
                 //root.lugar = tempnuevo();
                 //cuads.add(new Cuadruplo("=", "RET", "", root.lugar));
+            } else if (root.hijos.size() == 2) {
+                cantparam = 1;
+                genCodOP(root.hijos.get(1));
+                String t = tipo_valoro(root.hijos.get(1));
+                int sz = getSize(t);
+                String val = sz+"";
+                cuads.add(new Cuadruplo("param", root.hijos.get(1).lugar, val, ""));
+                cuads.add(new Cuadruplo("call", root.hijos.get(0).valor, "1", ""));
             } else {
                 cantparam = 0;
                 params2(root.hijos.get(1), root.hijos.get(0).valor);
