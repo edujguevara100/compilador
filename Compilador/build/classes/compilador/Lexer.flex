@@ -55,9 +55,9 @@ int = -?[0-9]+
 id = "_"({letra}|{int})+
 bool = ("true"|"false")
 char = '[0-9a-zA-Z ]'
-string = \"({palabra}|{int}|{espacio})+\"
+string = \"({palabra}|{int}|{espacio}|{dosp})+\"
 espacio = [ \n\r\t]
-
+dosp = (":"|"\\")
 oppar = "("
 cerrarpar = ")"
 abrecor = "["

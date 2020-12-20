@@ -5,15 +5,14 @@
  */
 package compilador;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author edujg
  */
-public class S {
-    ArrayList<Integer> listasiguiente = new ArrayList<Integer>();
-    S(){
-        
+public class DescriptorR {
+    String registro = "";
+    String valor = "";
+    DescriptorR(String r){
+        registro = r;
     }
 }

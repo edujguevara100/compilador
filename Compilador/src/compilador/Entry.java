@@ -12,6 +12,8 @@ package compilador;
 public class Entry {
     String id, ambito, tipo;
     int offset;
+    int parametros = 0;
+    String descriptor = "";
     Entry(String i, String t, String a, int o){
         id = i;
         tipo = t;

@@ -279,7 +279,7 @@ FUNCION ::=  FUNCION:f FUNCION2:ff
              :}
              | ;
 
-FUNCION2 ::= FUNC TYPE:t ID:i ABREPAR LISTAPARAM:listaparam CIERRAPAR BEGIN CODE:code RETORNO:r ENDFU
+FUNCION2 ::= FUNC TYPE:t ID:i ABREPAR LISTAPARAM:listaparam CIERRAPAR BEGIN CODE:code ENDFU
              {:
                 Node funcion2 = new Node("FUNCION");
                 //funcion2.addNode(new Node("FUNC", "func"));
@@ -290,7 +290,7 @@ FUNCION2 ::= FUNC TYPE:t ID:i ABREPAR LISTAPARAM:listaparam CIERRAPAR BEGIN CODE
                 //funcion2.addNode(new Node("CIERRAPAR", ")"));
                 //funcion2.addNode(new Node("BEGIN", "begin"));
                 funcion2.addNode(code);
-                funcion2.addNode(r);
+                //funcion2.addNode(r);
                 //funcion2.addNode(new Node("ENDFU", "end func"));
                 RESULT = funcion2;
              :}
@@ -331,7 +331,7 @@ LISTATYPES ::= LISTATYPES:lista COMA TYPE:t ID:i
                 RESULT = listatypes;
                :};
 
-MAINCOND ::= FUNCION:f FUNC MAIN BEGIN CODE:code RETORNO:retorno ENDM
+MAINCOND ::= FUNCION:f FUNC MAIN BEGIN CODE:code ENDM
              {:
                 Node maincond = new Node("MAIN");
                 maincond.addNode(f);
@@ -339,7 +339,7 @@ MAINCOND ::= FUNCION:f FUNC MAIN BEGIN CODE:code RETORNO:retorno ENDM
                 //maincond.addNode(new Node("MAIN", "int_main()"));
               //  maincond.addNode(new Node("BEGIN", "begin"));
                 maincond.addNode(code);
-                maincond.addNode(retorno);
+                //maincond.addNode(retorno);
                // maincond.addNode(new Node("ENDM", "end main"));
                 RESULT = maincond;
              :} | error:e {: parser.error += "MAIN\n";parser.Main_Error(); :};
@@ -744,6 +744,13 @@ CODE ::= DECLARACION:o CODE:c
             RESULT = code;
          :}
          | READCOND:o CODE:c
+         {:
+            Node code = new Node("CODE");
+            code.addNode(o);
+            code.addNode(c);
+            RESULT = code;
+         :}
+         | RETORNO:o CODE:c
          {:
             Node code = new Node("CODE");
             code.addNode(o);
