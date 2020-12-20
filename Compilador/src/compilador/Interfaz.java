@@ -958,7 +958,7 @@ public class Interfaz extends javax.swing.JFrame {
                     stack_size += getSize(variables.get(j).tipo);
                 }
                 int sp = stack + stack_size;
-                txt += "    sub $sp, " + sp + "\n";
+                txt += "    sub $sp, $sp, " + sp + "\n";
             } else if (cuads.get(i).op.equals("+")) {
                 txt += op(cuads.get(i));
             } else if (cuads.get(i).op.equals("-")) {
