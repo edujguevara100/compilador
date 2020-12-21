@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
@@ -70,6 +72,8 @@ public class Interfaz extends javax.swing.JFrame {
         bt_arbol = new javax.swing.JButton();
         bt_cuad = new javax.swing.JButton();
         bt_final = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textEditorArea = new javax.swing.JTextArea();
         panel2 = new javax.swing.JPanel();
         scroll = new javax.swing.JScrollPane();
         jtree = new javax.swing.JTree();
@@ -79,15 +83,15 @@ public class Interfaz extends javax.swing.JFrame {
         panel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setText("Seleccionar Archivo:");
-        panel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 50, -1, -1));
+        panel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
         jButton1.setText("Buscar");
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton1MouseClicked(evt);
+                searchFile(evt);
             }
         });
-        panel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 80, -1, -1));
+        panel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, -1));
 
         bt_analizar.setText("Analizar");
         bt_analizar.setEnabled(false);
@@ -96,7 +100,7 @@ public class Interfaz extends javax.swing.JFrame {
                 bt_analizarMouseClicked(evt);
             }
         });
-        panel1.add(bt_analizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, -1, -1));
+        panel1.add(bt_analizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 70, -1, -1));
 
         bt_arbol.setText("Ver Arbol");
         bt_arbol.setEnabled(false);
@@ -105,7 +109,7 @@ public class Interfaz extends javax.swing.JFrame {
                 bt_arbolMouseClicked(evt);
             }
         });
-        panel1.add(bt_arbol, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 180, -1, -1));
+        panel1.add(bt_arbol, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 110, -1, -1));
 
         bt_cuad.setText("Cuádruplos");
         bt_cuad.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -113,7 +117,7 @@ public class Interfaz extends javax.swing.JFrame {
                 bt_cuadMouseClicked(evt);
             }
         });
-        panel1.add(bt_cuad, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 180, -1, -1));
+        panel1.add(bt_cuad, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, -1, -1));
 
         bt_final.setText("Final");
         bt_final.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -121,7 +125,13 @@ public class Interfaz extends javax.swing.JFrame {
                 bt_finalMouseClicked(evt);
             }
         });
-        panel1.add(bt_final, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 230, -1, -1));
+        panel1.add(bt_final, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 190, -1, -1));
+
+        textEditorArea.setColumns(20);
+        textEditorArea.setRows(5);
+        jScrollPane1.setViewportView(textEditorArea);
+
+        panel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 10, 550, 400));
 
         panel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -135,15 +145,17 @@ public class Interfaz extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel1, javax.swing.GroupLayout.PREFERRED_SIZE, 502, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(panel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addComponent(panel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(panel1, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 85, Short.MAX_VALUE))
+                .addComponent(panel1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addComponent(panel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -838,21 +850,31 @@ public class Interfaz extends javax.swing.JFrame {
         return 2;
     }
 
-    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+    private void searchFile(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchFile
         // TODO add your handling code here:
         try {
             JFileChooser file = new JFileChooser();
             file.showOpenDialog(this);
             File abre = file.getSelectedFile();
             if (abre != null) {
+                fr2 = new FileReader(abre);
+                Scanner textReader = new Scanner(fr2);
+                textEditorArea.setText("");
+                while ( textReader.hasNextLine() ) {
+                    String line = textReader.nextLine();
+                    this.textEditorArea.append(line + "\n");
+                }
+
+                fr2.close();
                 fr = new FileReader(abre);
                 fr2 = new FileReader(abre);
                 bt_analizar.setEnabled(true);
+
             }
         } catch (Exception ex) {
-            System.out.println("ERROR AL ABRIR ARCHIVO");
+            System.out.println(ex);
         }
-    }//GEN-LAST:event_jButton1MouseClicked
+    }//GEN-LAST:event_searchFile
 
     private void bt_arbolMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_arbolMouseClicked
         // TODO add your handling code here:
@@ -1174,9 +1196,34 @@ public class Interfaz extends javax.swing.JFrame {
                 txt += genIf(cuads.get(i));
             }
         }
-        System.out.println(txt);
+        saveToFile(txt);
     }//GEN-LAST:event_bt_finalMouseClicked
-
+    
+    public void saveToFile(String text) {
+        System.out.println(text);
+        
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Guardar ASM");
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileWriter asmFile = new FileWriter(fileChooser.getSelectedFile());
+                asmFile.write(text);
+                asmFile.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Interfaz.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+//        fileChooser.setDialogTitle("Specify a file to save");   
+//         
+//        int userSelection = fileChooser.showSaveDialog(parentFrame);
+//         
+//        if (userSelection == JFileChooser.APPROVE_OPTION) {
+//            File fileToSave = fileChooser.getSelectedFile();
+//            System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+//        }
+    }
+    
     public static String loadAsig(Cuadruplo c) {
         String txt = "";
 
@@ -2307,9 +2354,11 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JButton bt_final;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTree jtree;
     private javax.swing.JPanel panel1;
     private javax.swing.JPanel panel2;
     private javax.swing.JScrollPane scroll;
+    private javax.swing.JTextArea textEditorArea;
     // End of variables declaration//GEN-END:variables
 }
