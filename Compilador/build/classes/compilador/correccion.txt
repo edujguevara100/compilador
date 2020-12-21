@@ -1,1 +1,0 @@
-func int _pruebafor ( ) begin for ( int _x -> 2 , _x + + ) begin print ( _x ) ; print ( _x ) ; print ( "\n" ) ; end for end func func int_main() begin _pruebafor ( ) ; end main 
