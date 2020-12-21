@@ -219,7 +219,8 @@ public class Interfaz extends javax.swing.JFrame {
                 if (existe(n.valor) || esParam(n.valor)) {
                     return get_tipo2(n.valor);
                 } else {
-                    semantico += "La variable: " + n.valor + " no ha sido declarada\n";
+                    semantico += "La variable: " + n.valor + " no ha sido declarada." 
+                        + " Linea " + n.linea + ":" + n.columna +"\n";
                     //System.out.println("ACA");
                     return "int";
                 }
@@ -236,17 +237,20 @@ public class Interfaz extends javax.swing.JFrame {
                 if (existe(n.valor)) {
                     String t = get_tipo2(n.valor);
                     if (t.equals("int") || t.equals("bool") || t.equals("char")) {
-                        semantico += n.valor + " es del tipo: " + t + ", no es funcion ni arreglo ni matriz\n";
+                        semantico += n.valor + " es del tipo: " + t + ", no es funcion ni arreglo ni matriz."
+                                + " Linea " + n.linea + ":" + n.columna +"\n";
                         return t;
                     } else if (!t.contains("->")) {
                         if (t.contains("array")) {
                             if (n.hijos.get(0).nombre.equals("LISTA POSICIONES")) {
-                                semantico += "Error, la variable: " + n.valor + " es un array, no una matriz\n";
+                                semantico += "Error, la variable: " + n.valor + " es un array, no una matriz."
+                                        + " Linea " + n.linea + ":" + n.columna +"\n";;
                             } else {
                                 if (tipo_valoro(n.hijos.get(0)).equals("int")) {
                                     return t.substring(t.indexOf("_") + 1, t.indexOf("{"));
                                 } else {
-                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros\n";
+                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros."
+                                            + " Linea " + n.linea + ":" + n.columna +"\n";
                                 }
                             }
                         } else {
@@ -255,13 +259,15 @@ public class Interfaz extends javax.swing.JFrame {
                                         && tipo_valoro(n.hijos.get(0).hijos.get(1)).equals("int")) {
                                     return t.substring(t.indexOf("_") + 1, t.indexOf("{"));
                                 } else {
-                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros\n";
+                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros"
+                                            + " Linea " + n.linea + ":" + n.columna +"\n";
                                 }
                             } else {
                                 if (tipo_valoro(n.hijos.get(0)).equals("int")) {
                                     return "array_" + t.substring(t.indexOf("_") + 1);
                                 } else {
-                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros\n";
+                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros."
+                                            + " Linea " + n.linea + ":" + n.columna +"\n";
                                 }
                             }
                         }
@@ -273,18 +279,21 @@ public class Interfaz extends javax.swing.JFrame {
                         String tipo[] = tip.split(" x ");
                         tipo[tipo.length - 1] = tipo[tipo.length - 1].replace(" ", "");
                         if (tipo.length != param.size()) {
-                            semantico += "Se esperaban: " + tipo.length + " parametros, y se encontraron: " + param.size() + "\n";
+                            semantico += "Se esperaban: " + tipo.length + " parametros, y se encontraron: " + param.size() + "."
+                                    + " Linea " + n.linea + ":" + n.columna +"\n";
                         } else {
                             for (int i = 0; i < param.size(); i++) {
                                 if (!param.get(i).equals(tipo[i])) {
-                                    semantico += "Se esperaba un: " + tipo[i] + " y se encontro un: " + param.get(i) + "\n";
+                                    semantico += "Se esperaba un: " + tipo[i] + " y se encontro un: " + param.get(i) + "."
+                                            + " Linea " + n.linea + ":" + n.columna +"\n";
                                 }
                             }
                         }
                         return t.substring(t.indexOf("-> ") + 3);
                     }
                 } else {
-                    semantico += "La variable: " + n.valor + " no ha sido declarada\n";
+                    semantico += "La variable: " + n.valor + " no ha sido declarada."
+                            + " Linea " + n.linea + ":" + n.columna +"\n";
                     return "int";
                 }
             } else if (n.nombre.equals("MATRIX")) {
@@ -294,7 +303,8 @@ public class Interfaz extends javax.swing.JFrame {
                 tipo = tipos_matrix.get(0);
                 for (int i = 1; i < tipos_matrix.size(); i++) {
                     if (!tipos_matrix.get(i).equals(tipo)) {
-                        semantico += "Se esperaba un: " + tipo + " y se encontro un: " + tipos_matrix.get(i) + "\n";
+                        semantico += "Se esperaba un: " + tipo + " y se encontro un: " + tipos_matrix.get(i) + "."
+                                + " Linea " + n.linea + ":" + n.columna +"\n";
                     }
                 }
                 return "matrix_" + tipo.substring(tipo.indexOf("_") + 1, tipo.indexOf("{"))
@@ -305,7 +315,8 @@ public class Interfaz extends javax.swing.JFrame {
                 String tipo = ids2.get(0);
                 for (int i = 1; i < ids2.size(); i++) {
                     if (!ids2.get(i).equals(tipo)) {
-                        semantico += "Se esperaba un: " + tipo + " y se encontro un: " + ids2.get(i) + "\n";
+                        semantico += "Se esperaba un: " + tipo + " y se encontro un: " + ids2.get(i) + "."
+                                + " Linea " + n.linea + ":" + n.columna +"\n";
                     }
                 }
                 return "array_" + tipo + "{" + ids2.size() + "}";
@@ -333,7 +344,8 @@ public class Interfaz extends javax.swing.JFrame {
                 String ti = ids2.get(0);
                 for (int j = 1; j < ids2.size(); j++) {
                     if (!ids2.get(j).equals(ti)) {
-                        semantico += "Se esperaba un: " + ti + " y se encontro un: " + ids2.get(j) + "\n";
+                        semantico += "Se esperaba un: " + ti + " y se encontro un: " + ids2.get(j) + "."
+                                + " Linea " + n.linea + ":" + n.columna +"\n";
                     }
                 }
                 ti = "array_" + ti + "{" + ids2.size() + "}";
@@ -384,7 +396,8 @@ public class Interfaz extends javax.swing.JFrame {
             String t = tipo_valoro(act.hijos.get(0));
             String t1 = tipo_valoro(act.hijos.get(1));
             if (!t.equals("bool") || !t1.equals("bool")) {
-                semantico += "Comparacion Booleana utilizando: " + t + " y " + t1 + ", en vez de bools\n";
+                semantico += "Comparacion Booleana utilizando: " + t + " y " + t1 + ", en vez de bools."
+                        + " Linea " + act.linea + ":" + act.columna +"\n";;
             }
         } else if (act.valor.equals("<")
                 || act.valor.equals(">")
@@ -395,18 +408,23 @@ public class Interfaz extends javax.swing.JFrame {
             String t = tipo_valoro(act.hijos.get(0));
             String t1 = tipo_valoro(act.hijos.get(1));
             if (!t.equals(t1)) {
-                semantico += "Comparacion Relacional utilizando: " + t + " y " + t1 + ", no valida entre tipos distintos\n";
+                semantico += "Comparacion Relacional utilizando: " + t + " y " + t1 + ", no valida entre tipos distintos."
+                    + " Linea " + act.linea + ":" + act.columna +"\n";
             }
         } else if (act.nombre.equals("VALOR OP BOOL")) {
             if (act.hijos.size() == 3) {
-                String x = tipo_valoro(act.hijos.get(1));
+                Node n = act.hijos.get(1);
+                String x = tipo_valoro(n);
                 if (!x.equals("bool")) {
-                    semantico += "Se esperaba un bool\n";
+                    semantico += "Se esperaba un bool."
+                        + " Linea " + n.linea + ":" + n.columna +"\n";
                 }
             } else {
-                String x = tipo_valoro(act.hijos.get(2));
+                Node n = act.hijos.get(2);
+                String x = tipo_valoro(n);
                 if (!x.equals("bool")) {
-                    semantico += "Se esperaba un bool\n";
+                    semantico += "Se esperaba un bool"
+                            + " Linea " + n.linea + ":" + n.columna +"\n";
                 }
             }
         }
@@ -477,8 +495,11 @@ public class Interfaz extends javax.swing.JFrame {
             if (!tipo_valoro(actual.hijos.get(3)).equals("int")) {
                 semantico += "Error en el for, se esperaba un int como limite superior\n";
             }
-            if (!actual.hijos.get(1).valor.equals(actual.hijos.get(4).valor)) {
-                semantico += "Error, la variable declarada en el for debe ser la misma que se utiliza para manejar su flujo\n";
+            Node declarado = actual.hijos.get(1);
+            Node manjedorDeFlujo = actual.hijos.get(4);
+            if (!declarado.valor.equals(manjedorDeFlujo.valor)) {
+                semantico += "Error, la variable declarada en el for debe ser la misma que se utiliza para manejar su flujo."
+                        + " Linea " + manjedorDeFlujo.linea + ":" + manjedorDeFlujo.columna +"\n";
             }
         } else if (actual.nombre.equals("BLOQUE OPTIONS")) {
             //FALTA VALORO PARA LAS OPT INDIVIDUALES
@@ -541,7 +562,9 @@ public class Interfaz extends javax.swing.JFrame {
                 //return t.substring(t.indexOf("-> ") + 3);
 
             } else {
-                semantico += "La funcion: " + actual.hijos.get(0).valor + " no existe\n";
+                Node func = actual.hijos.get(0);
+                semantico += "La funcion: " + func.valor + " no existe."
+                        + " Linea " + func.linea + ":" + func.columna +"\n";
             }
         } else if (actual.nombre.equals("ASIGNACION")) {
             if (existe(actual.hijos.get(0).valor)) {
@@ -726,7 +749,9 @@ public class Interfaz extends javax.swing.JFrame {
                     }
                 }
                 if (esta) {
-                    semantico += "Error, la variable " + actual.hijos.get(i).valor + " ya esta declarada\n";
+                    Node id = actual.hijos.get(i);
+                    semantico += "Error, la variable " + id.valor + " ya esta declarada."
+                            + " Linea " + id.linea + ":" + id.columna +"\n";
                 } else {
                     ids.add(actual.hijos.get(i).valor);
                 }
@@ -818,7 +843,7 @@ public class Interfaz extends javax.swing.JFrame {
                 }
                 root = parser.raiz;
                 llenar_tabla(root);
-                JOptionPane.showMessageDialog(null, "Análisis Léxico:\n" + semantico, "Análisis de Codigo", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Análisis Semántico:\n" + semantico, "Análisis de Codigo", JOptionPane.INFORMATION_MESSAGE);
                 for (int i = 0; i < tabla_simbolos.size(); i++) {
                     System.out.println("ID: " + tabla_simbolos.get(i).id
                             + ", TIPO: " + tabla_simbolos.get(i).tipo

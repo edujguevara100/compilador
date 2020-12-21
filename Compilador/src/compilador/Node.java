@@ -36,6 +36,14 @@ public class Node {
         hijos = new ArrayList();
     }
 
+    public Node(String nombre, String valor, int linea, int columna) {
+        this.nombre = nombre;
+        this.valor = valor;
+        this.linea = linea + 1;
+        this.columna = columna + 1;
+        hijos = new ArrayList();
+    }
+
     public void addNode(Object root){
         if (root != null) {
             hijos.add((Node)root);
@@ -88,9 +96,9 @@ public class Node {
     @Override
     public String toString() {
         if (valor.equals("<non-terminal>")) {
-            return nombre;
+            return nombre + " " + linea + ":" + columna;
         }else{
-            return valor;
+            return valor + " " + linea + ":" + columna;
         }
     }
     
