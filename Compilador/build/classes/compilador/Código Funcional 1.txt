@@ -1,0 +1,25 @@
+func int _pruebaoptions(char _u) begin
+    /*print("TEST\n");*/
+    options (_u , char) begin
+	opt ['a']{
+            print("El caracter es: a\n");
+	}
+        opt ['b']{
+            print("El caracter es: b\n");
+        }
+	opt_def {
+            print("El caracter es: ");
+            print(_u);
+        }
+    end options
+end func
+func int_main() begin
+    int _c = 5;
+    loop (_c > 0) begin
+        print(_c);
+        print("\n");
+        _c = _c - 1;
+    end loop
+    char _o = 'x';
+    _pruebaoptions(_o);
+end main 
