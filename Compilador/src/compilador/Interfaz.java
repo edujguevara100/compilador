@@ -1131,6 +1131,7 @@ public class Interfaz extends javax.swing.JFrame {
                                 for (int j = 0; j < registros.size(); j++) {
                                     if (registros.get(j).valor.equals(cuads.get(i).op1)) {
                                         txt += "    li $v0, 1\n    move $a0, " + registros.get(j).registro + "\n    syscall\n";
+                                        break;
                                     }
                                 }
                             }
@@ -1156,6 +1157,7 @@ public class Interfaz extends javax.swing.JFrame {
                                 for (int j = 0; j < registros.size(); j++) {
                                     if (registros.get(j).valor.equals(cuads.get(i).op1)) {
                                         txt += "    li $v0, 1\n    move $a0, " + registros.get(j).registro + "\n    syscall\n";
+                                        break;
                                     }
                                 }
                             }
@@ -1181,6 +1183,7 @@ public class Interfaz extends javax.swing.JFrame {
                                 for (int j = 0; j < registros.size(); j++) {
                                     if (registros.get(j).valor.equals(cuads.get(i).op1)) {
                                         txt += "    li $v0, 11\n    move $a0, " + registros.get(j).registro + "\n    syscall\n";
+                                        break;
                                     }
                                 }
                             }
@@ -1281,7 +1284,7 @@ public class Interfaz extends javax.swing.JFrame {
                 txt += loadAsig(cuads.get(i));
             } else if (cuads.get(i).op.equals("call")) {
                 //Revisar si hay temporales vivos!!!!!!
-                ArrayList<DescriptorR> regs = new ArrayList<DescriptorR>();
+                /*ArrayList<DescriptorR> regs = new ArrayList<DescriptorR>();
                 int a_mover = 0;
                 for (int j = 0; j < 10; j++) {
                     if (!registros.get(j).valor.equals("")) {
@@ -1293,16 +1296,16 @@ public class Interfaz extends javax.swing.JFrame {
                 if (a_mover != 0) {
                     txt += "    sub $sp, $sp, " + a_mover + "\n";
                 }
-                //reg_temp.add(regs);
+                //reg_temp.add(regs);*/
                 txt += "    jal " + cuads.get(i).op1 + "\n";
-                a_mover = 0;
+                /*a_mover = 0;
                 for (int j = 0; j < regs.size(); j++) {
                     txt += "    lw " + regs.get(j).registro + ", " + a_mover + "($sp)\n";
                     a_mover += 4;
                 }
                 if (a_mover != 0) {
                     txt += "    add $sp, $sp, " + a_mover + "\n";
-                }
+                }*/
                 params_actuales = 0;
                 par_mem = 8;
             } else if (cuads.get(i).op.equals("param")) {
@@ -1531,6 +1534,7 @@ public class Interfaz extends javax.swing.JFrame {
                         tabla_simbolos.get(j).descriptor = sgtreg;
                         liberar1 = true;
                         r = sgtreg;
+                        break;
                     } else {
                         txt += "    move $a" + params_actuales + ", " + tabla_simbolos.get(j).descriptor + "\n";
                     }
@@ -2165,7 +2169,7 @@ public class Interfaz extends javax.swing.JFrame {
                 cuads.add(new Cuadruplo("call", root.hijos.get(0).valor, "0", ""));
                 //root.lugar = tempnuevo();
                 //cuads.add(new Cuadruplo("=", "RET", "", root.lugar));
-            } else if (root.hijos.size() == 2) {
+            } else if (root.hijos.size() == 2 && root.hijos.get(1).hijos.size() == 0) {
                 cantparam = 1;
                 genCodOP(root.hijos.get(1));
                 String t = tipo_valoro(root.hijos.get(1));

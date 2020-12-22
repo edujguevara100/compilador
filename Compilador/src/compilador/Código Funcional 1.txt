@@ -22,7 +22,7 @@ func int_main() begin
         _c = _c - 1;
     end loop
     char _o = 'x';
-    _c = 5 * 5 + _pruebaoptions(_o);
+    _c = _pruebaoptions(_o);
     print("\n");
     print(_c);
 end main 

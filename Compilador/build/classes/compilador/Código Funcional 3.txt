@@ -1,15 +1,29 @@
+func int _prueba(int _f, bool _h, int _g, int _o, bool _x, int _este) begin
+    print("El quinto parametro es: ");
+    print(_x);
+    print("\n");
+    print("El sexto parametro es: ");
+    print(_este);
+    print("\n");
+end func
+func int _fibonacci(int _l) begin
+    if(_l == 1) begin
+        return 1;
+    end if
+    if(_l == 2) begin
+        return 1;
+    end if
+    return _fibonacci(_l - 1) + _fibonacci(_l - 2);
+end func
 func int_main() begin
-    int _i;
-    int _i;
-    read _i;
-    print(_i);
-    for(int _j -> 10, _i ++) begin
-        if (_j >= 5) begin
-            print (_j);
-	end if
-	else begin
-            print ("La cantidad de Ciclos realizados es insuficiente");
-	end else
+    int _num;
+    print("Prueba\n");
+    _prueba(1,true,2,3,false,40);
+    print("Ingrese un numero: ");
+    read _num;
+    for(int _v -> _num, _v++) begin
+        print(_v);
     end for
-    return 0;
+    print("\n");
+    print(_fibonacci(5));
 end main

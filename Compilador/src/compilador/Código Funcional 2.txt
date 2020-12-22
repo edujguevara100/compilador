@@ -1,16 +1,16 @@
+func int _potencia(int _m, int _n) begin
+    if(_n == 1) begin
+        return _m;
+    end if
+    return _m * _potencia(_m, _n - 1);
+end func
 func int_main() begin
-        int _i = 0, _c = 0+5, _d, _a;
-	loop (!(_b)) begin
-            _PrintSumar(_b, 5+5);
-	end loop
-	options (_i , int) begin
-		opt [1]{
-			_i = 2;
-			print(true);
-		}
-		opt_def {
-			_i = 3;
-		}
-	end options
-	return 0; 
+        int _a, _b;
+        print("Introduzca un numero:\n");
+        read _a;
+        print("Introduzca otro numero:\n");
+        read _b;
+        print("El resultado es: ");
+        print(_potencia(_a, _b));
+        print("  ");
 end main

@@ -96,9 +96,9 @@ public class Node {
     @Override
     public String toString() {
         if (valor.equals("<non-terminal>")) {
-            return nombre + " " + linea + ":" + columna;
+            return nombre; //+ " " + linea + ":" + columna;
         }else{
-            return valor + " " + linea + ":" + columna;
+            return valor; //+ " " + linea + ":" + columna;
         }
     }
     

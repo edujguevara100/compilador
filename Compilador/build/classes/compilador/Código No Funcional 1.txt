@@ -1,37 +1,28 @@
-func int _funcion (int _a, char _b, bool _t) begin
-	int _i = 3, _j, _c = 2+2;
-        matrix_int _k = ((true, false, true));
-        read ;
-        array_char _l = ('a'), _h, _g = ('a', 'b', 'c');
-	_i = 2 +_b
-        _j = ((true, false, true), (true));
-	if ((_i >= _j) & true | false) begin
-		if(true) begin
-			_i = 2*5/2+3;
-		end if	
-	end if
-	else if(true) begin
-		for(int _i -> 2, _i ++) begin
-		end for
-	end else
-        else if(false) begin
-        end else
-        else begin
-        end else
-        return _i
+func int _pruebaoptions(char _u) begin
+    /*print("TEST\n");*/
+    options (_u , char) begin
+	opt [2]{
+            print("El caracter es: a\n");
+	}
+        opt [1]{
+            print("El caracter es: b\n");
+        }
+	opt_def {
+            print("El caracter es: ");
+            print(_u);
+        }
+    end options
+    return 5;
 end func
 func int_main() begin
-	loop (true & false | !(_b)) begin
-            _funcion(_b, 5+5);
-	end loop
-	options (_i , int) begin
-		opt [1]{
-			_i = 2;
-			print(true);
-		}
-		opt_def {
-			_j = 3;
-		}
-	end options
-	return 0; 
-end main
+    int _c = 'a';
+    loop (_c > false) begin
+        print(_c);
+        print("\n");
+        _c = _c - 1;
+    end loop
+    char _o = 'x';
+    _c = 5 * 5 + _pruebaoptions(_c);
+    print("\n");
+    print(_c);
+end main 

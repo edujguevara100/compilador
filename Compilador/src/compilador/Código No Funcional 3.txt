@@ -1,25 +1,31 @@
-func bool _funcBool() begin ola
-	int _i = 3;
-        int _b = 2;
-	bool _val = false;
-        	if (_i >= 3) begin
-                    _val = true;
-                end if
-        return _val;
+func int _prueba(int _f, bool _h, int _g, int _o, bool _x, int _este) begin
+    print("El quinto parametro es: ");
+    print(_x);
+    print("\n");
+    print("El sexto parametro es: ");
+    print(_este);
+    print("\n");
 end func
-/* Final de la Función Booleana _funcBool()*/
+func int _fibonacci(int _l) begin
+    if(_l == 1) begin
+        return 1;
+    end if
+    if(_l == 2) begin
+        return 1;
+    end if
+    return _fibonacci(_l - 1) + _fibonacci(_l - 2);
+end func
 func int_main() begin
-	loop (_i<10) begin
-            	_funcBool();
-	end loop
-	options (_i , int) begin
-		opt [1]{
-			_i = 2;
-			print(true);
-		}
-		opt_def {
-			_j = 3;#
-		}
-	end options
-	return 0; 
+    int _num;
+    print("Prueba\n");
+    _prueba(1,true,2,3);
+    print("Ingrese un numero: ");
+    read _num;
+    char _caracter = 'a';
+    for(int _v -> _caracter, _v++) begin
+        print(_v);
+    end for
+    _x = 15;
+    print("\n");
+    print(_fibonacci(5));
 end main
