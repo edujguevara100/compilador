@@ -12,13 +12,17 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.JTree;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -35,6 +39,9 @@ public class Interfaz extends javax.swing.JFrame {
     public Interfaz() {
         initComponents();
         panel2.setVisible(false);
+        panel3.setVisible(false);
+        
+        
     }
     public static FileReader fr = null, fr2 = null;
     public static Node root, padre, options_father;
@@ -77,6 +84,11 @@ public class Interfaz extends javax.swing.JFrame {
         panel2 = new javax.swing.JPanel();
         scroll = new javax.swing.JScrollPane();
         jtree = new javax.swing.JTree();
+        salirArbol = new javax.swing.JButton();
+        panel3 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tbCuadruplos = new javax.swing.JTable();
+        salirCuad = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -141,6 +153,62 @@ public class Interfaz extends javax.swing.JFrame {
 
         panel2.add(scroll, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 550, 370));
 
+        salirArbol.setText("Regresar");
+        salirArbol.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                salirArbolMouseClicked(evt);
+            }
+        });
+        panel2.add(salirArbol, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 270, 80, 30));
+
+        tbCuadruplos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Operador", "Arg1", "Arg2", "Res"
+            }
+        ));
+        jScrollPane2.setViewportView(tbCuadruplos);
+
+        salirCuad.setText("Regresar");
+        salirCuad.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                salirCuadMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panel3Layout = new javax.swing.GroupLayout(panel3);
+        panel3.setLayout(panel3Layout);
+        panel3Layout.setHorizontalGroup(
+            panel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 571, Short.MAX_VALUE)
+            .addGroup(panel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel3Layout.createSequentialGroup()
+                    .addContainerGap(43, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(44, Short.MAX_VALUE)))
+            .addGroup(panel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panel3Layout.createSequentialGroup()
+                    .addGap(448, 448, 448)
+                    .addComponent(salirCuad, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(33, Short.MAX_VALUE)))
+        );
+        panel3Layout.setVerticalGroup(
+            panel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 438, Short.MAX_VALUE)
+            .addGroup(panel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel3Layout.createSequentialGroup()
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(121, Short.MAX_VALUE)))
+            .addGroup(panel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panel3Layout.createSequentialGroup()
+                    .addGap(322, 322, 322)
+                    .addComponent(salirCuad, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(85, Short.MAX_VALUE)))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -150,6 +218,11 @@ public class Interfaz extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addComponent(panel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(panel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(171, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -158,6 +231,11 @@ public class Interfaz extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addComponent(panel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(panel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         pack();
@@ -919,9 +997,14 @@ public class Interfaz extends javax.swing.JFrame {
         //BACKPATCHING O PROPAGACION
         padre = root;
         cuadruplos(root);
+        DefaultTableModel model = (DefaultTableModel) tbCuadruplos.getModel();
         for (int i = 0; i < cuads.size(); i++) {
             System.out.println(cuads.get(i));
+            model.addRow(new Object[]{cuads.get(i).op, cuads.get(i).op1, cuads.get(i).op2, cuads.get(i).res});
+
         }
+        panel1.setVisible(false);
+        panel3.setVisible(true);
     }//GEN-LAST:event_bt_cuadMouseClicked
 
     private void bt_finalMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_finalMouseClicked
@@ -1223,6 +1306,18 @@ public class Interfaz extends javax.swing.JFrame {
         }
         saveToFile(txt);
     }//GEN-LAST:event_bt_finalMouseClicked
+
+    private void salirCuadMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirCuadMouseClicked
+        // TODO add your handling code here:
+        panel3.setVisible(false);
+        panel1.setVisible(true);
+    }//GEN-LAST:event_salirCuadMouseClicked
+
+    private void salirArbolMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirArbolMouseClicked
+        // TODO add your handling code here:
+        panel2.setVisible(false);
+        panel1.setVisible(true);
+    }//GEN-LAST:event_salirArbolMouseClicked
     
     public void saveToFile(String text) {
         System.out.println(text);
@@ -2380,10 +2475,15 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTree jtree;
     private javax.swing.JPanel panel1;
     private javax.swing.JPanel panel2;
+    private javax.swing.JPanel panel3;
+    private javax.swing.JButton salirArbol;
+    private javax.swing.JButton salirCuad;
     private javax.swing.JScrollPane scroll;
+    private javax.swing.JTable tbCuadruplos;
     private javax.swing.JTextArea textEditorArea;
     // End of variables declaration//GEN-END:variables
 }
