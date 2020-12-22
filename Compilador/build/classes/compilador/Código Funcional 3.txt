@@ -1,5 +1,6 @@
 func int_main() begin
     int _i;
+    int _i;
     read _i;
     print(_i);
     for(int _j -> 10, _i ++) begin

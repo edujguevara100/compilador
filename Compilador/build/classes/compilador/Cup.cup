@@ -284,7 +284,7 @@ FUNCION2 ::= FUNC TYPE:t ID:i ABREPAR LISTAPARAM:listaparam CIERRAPAR BEGIN CODE
                 Node funcion2 = new Node("FUNCION");
                 //funcion2.addNode(new Node("FUNC", "func"));
                 funcion2.addNode(new Node("TYPE", ((String) t)));
-                funcion2.addNode(new Node("ID", ((String) i)));
+                funcion2.addNode(new Node("ID", ((String) i), ileft, iright));
                 //funcion2.addNode(new Node("ABREPAR", "("));
                 funcion2.addNode(listaparam);
                 //funcion2.addNode(new Node("CIERRAPAR", ")"));
@@ -300,7 +300,7 @@ LISTAPARAM ::= TYPE:t ID:i
                {:
                 Node listaparam = new Node("LISTA PARAMETROS");
                 listaparam.addNode(new Node("TYPE", ((String) t)));
-                listaparam.addNode(new Node("ID", ((String) i)));
+                listaparam.addNode(new Node("ID", ((String) i), ileft, iright));
                 RESULT = listaparam;
                :}
                | LISTATYPES:listatypes COMA TYPE:t ID:i 
@@ -309,7 +309,7 @@ LISTAPARAM ::= TYPE:t ID:i
                 listaparam.addNode(listatypes);
                 //listaparam.addNode(new Node("COMA", ","));
                 listaparam.addNode(new Node("TYPE", ((String) t)));
-                listaparam.addNode(new Node("ID", ((String) i)));
+                listaparam.addNode(new Node("ID", ((String) i), ileft, iright));
                 RESULT = listaparam;
                :}
                | ;
@@ -320,20 +320,22 @@ LISTATYPES ::= LISTATYPES:lista COMA TYPE:t ID:i
                 listatypes.addNode(lista);
                 //listatypes.addNode(new Node("COMA", ","));
                 listatypes.addNode(new Node("TYPE", ((String) t)));
-                listatypes.addNode(new Node("ID", ((String) i)));
+                listatypes.addNode(new Node("ID", ((String) i), ileft, iright));
                 RESULT = listatypes;
                :}
                | TYPE:t ID:i
                {:
                 Node listatypes = new Node("PARAMETROS TIPADOS");
                 listatypes.addNode(new Node("TYPE", ((String) t)));
-                listatypes.addNode(new Node("ID", ((String) i)));
+                listatypes.addNode(new Node("ID", ((String) i), ileft, iright));
                 RESULT = listatypes;
                :};
 
-MAINCOND ::= FUNCION:f FUNC MAIN BEGIN CODE:code ENDM
+MAINCOND ::= FUNCION:f FUNC MAIN:main BEGIN CODE:code ENDM
              {:
                 Node maincond = new Node("MAIN");
+                maincond.linea = mainleft;
+                maincond.columna = mainright;
                 maincond.addNode(f);
                // maincond.addNode(new Node("FUNC", "func"));
                 //maincond.addNode(new Node("MAIN", "int_main()"));
@@ -373,21 +375,23 @@ DECL ::= DECL:d COMA ID:i DECL2:dd
             Node decl = new Node("LISTA DE VARIABLES");
             decl.addNode(d);
           //  decl.addNode(new Node("COMA", ","));
-            decl.addNode(new Node("ID", ((String) i)));
+            decl.addNode(new Node("ID", ((String) i), ileft, iright));
             decl.addNode(dd);
             RESULT = decl;
          :}
          | ID:i DECL2:dd
          {:
             Node decl = new Node("LISTA DE VARIABLES");
-            decl.addNode(new Node("ID", ((String) i)));
+            decl.addNode(new Node("ID", ((String) i), ileft, iright));
             decl.addNode(dd);
             RESULT = decl;
          :};
 
-DECL2 ::= ASIG VALORO:v
+DECL2 ::= ASIG:asig VALORO:v
           {:
             Node decl2 = new Node("DECLARACION CON ASIGNACION");
+            decl2.linea = asigleft;
+            decl2.columna = asigright;
             decl2.addNode(new Node("ASIG", "="));
             decl2.addNode(v);
             RESULT = decl2;
@@ -398,7 +402,7 @@ DECL2 ::= ASIG VALORO:v
 ASIGNACION ::= ID:i M:m ASIG VALORO:v FINLINE
                {:
                 Node asignacion = new Node("ASIGNACION");
-                asignacion.addNode(new Node("ID", ((String) i)));
+                asignacion.addNode(new Node("ID", ((String) i), ileft, iright));
                 asignacion.addNode(m);
                 asignacion.addNode(new Node("ASIG", "="));
                 asignacion.addNode(v);
@@ -445,17 +449,19 @@ ELSECOND ::= ELSE BEGIN CODE:c ENDE
              :} | ELSE error:e {: parser.error+="ELSE\n";parser.Else_Error(); :}
               | ;
 
-FORCOND ::= FOR ABREPAR TYPE:t ID:i HASTA OPERACION:o COMA ID:id OPSR OPSR CIERRAPAR BEGIN CODE:c ENDF
+FORCOND ::= FOR:f ABREPAR TYPE:t ID:i HASTA OPERACION:o COMA ID:id OPSR OPSR CIERRAPAR BEGIN CODE:c ENDF
             {:
                 Node forcond = new Node("BLOQUE FOR");
+                forcond.linea = fleft;
+                forcond.columna = fright;
                 //forcond.addNode(new Node("FOR", "for"));
                 //forcond.addNode(new Node("ABREPAR", "("));
                 forcond.addNode(new Node("TYPE", ((String) t)));
-                forcond.addNode(new Node("ID", ((String) i)));
+                forcond.addNode(new Node("ID", ((String) i), ileft, iright));
                 forcond.addNode(new Node("HASTA", "->"));
                 forcond.addNode(o);
                 //forcond.addNode(new Node("COMA", ","));
-                forcond.addNode(new Node("ID", ((String) id)));
+                forcond.addNode(new Node("ID", ((String) id), idleft, idright));
                 forcond.addNode(new Node("OPSR", "+"));
                 forcond.addNode(new Node("OPSR", "+"));
                // forcond.addNode(new Node("CIERRAPAR", ")"));
@@ -465,9 +471,11 @@ FORCOND ::= FOR ABREPAR TYPE:t ID:i HASTA OPERACION:o COMA ID:id OPSR OPSR CIERR
                 RESULT = forcond;
             :} | FOR error:e {: parser.error+="FOR\n";parser.For_Error(); :};
 
-LOOPCOND ::= LOOP ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDL
+LOOPCOND ::= LOOP:loop ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDL
              {:
                 Node loopcond = new Node("BLOQUE LOOP");
+                loopcond.linea = loopleft;
+                loopcond.columna = loopright;
                 //loopcond.addNode(new Node("LOOP", "loop"));
                // loopcond.addNode(new Node("ABREPAR", "("));
                 loopcond.addNode(c);
@@ -478,12 +486,14 @@ LOOPCOND ::= LOOP ABREPAR CONDICION:c CIERRAPAR BEGIN CODE:code ENDL
                 RESULT = loopcond;
              :}| LOOP error {: parser.error+="LOOP\n";parser.Loop_Error(); :};
 
-OPTIONSCOND ::= OPTIONS ABREPAR ID:i COMA TYPE:t CIERRAPAR BEGIN OPTT:o ENDO
+OPTIONSCOND ::= OPTIONS:opt ABREPAR ID:i COMA TYPE:t CIERRAPAR BEGIN OPTT:o ENDO
                 {:
                     Node optionscond = new Node("BLOQUE OPTIONS");
+                    optionscond.linea = optleft;
+                    optionscond.columna = optright;
                    // optionscond.addNode(new Node("OPTIONS", "options"));
                   //  optionscond.addNode(new Node("ABREPAR", "("));
-                    optionscond.addNode(new Node("ID", ((String) i)));
+                    optionscond.addNode(new Node("ID", ((String) i), ileft, iright));
                  //   optionscond.addNode(new Node("COMA", ","));
                     optionscond.addNode(new Node("TYPE", ((String) t)));
                  //   optionscond.addNode(new Node("CIERRAPAR", ")"));
@@ -493,9 +503,11 @@ OPTIONSCOND ::= OPTIONS ABREPAR ID:i COMA TYPE:t CIERRAPAR BEGIN OPTT:o ENDO
                     RESULT = optionscond;
                 :} | OPTIONS error {: parser.error+="OPTIONS\n";parser.Options_Error(); :};
 
-OPTT ::= OPT ABRECOR VALORO:v CIERRACOR ABRE CODE:c CIERRA OPTT:o
+OPTT ::= OPT:opt ABRECOR VALORO:v CIERRACOR ABRE CODE:c CIERRA OPTT:o
          {:
             Node optt = new Node("BLOQUE OPTION");
+            optt.linea = optleft;
+            optt.columna = optright;
             //optt.addNode(new Node("OPTION", "opt"));
             //optt.addNode(new Node("ABRECOR", "["));
             optt.addNode(v);
@@ -506,9 +518,11 @@ OPTT ::= OPT ABRECOR VALORO:v CIERRACOR ABRE CODE:c CIERRA OPTT:o
             optt.addNode(o);
             RESULT = optt;
          :}
-         | DEFOPT ABRE CODE:c CIERRA
+         | DEFOPT:defo ABRE CODE:c CIERRA
          {:
             Node optt = new Node("BLOQUE DEFAULT OPTION");
+            optt.linea = defoleft;
+            optt.columna = deforight;
             //optt.addNode(new Node("DEFOPT", "opt_def"));
             //optt.addNode(new Node("ABRE", "{"));
             optt.addNode(c);
@@ -568,6 +582,8 @@ OP1 ::= OP1:op1 OPMD:op OP2:op2
         {:
             //Node operacion = new Node("OPERACION MD");
             Node operacion = new Node("OPMD", ((String) op));
+            operacion.linea = opleft;
+            operacion.columna = opright;
             operacion.addNode(op1);
             operacion.addNode(op2);
             RESULT = operacion;
@@ -588,7 +604,7 @@ OP2 ::= INT:i
         | ID:i ACCEDERM:m
         {:
             //Node op2 = new Node("VALOR OPERACION");
-            Node op2 = new Node("ID", ((String) i));
+            Node op2 = new Node("ID", ((String) i), ileft, iright);
             op2.addNode(m);
             RESULT = op2;
         :}
@@ -605,6 +621,8 @@ CONDICION ::= CONDICION:c OPREL:op COND1:c1
               {:
                 //Node condicion = new Node("OPERACION OPREL");
                 Node condicion = new Node("OPREL", ((String) op));
+                condicion.linea = opleft;
+                condicion.columna = opright;
                 condicion.addNode(c);
                 condicion.addNode(c1);
                 RESULT = condicion;
@@ -620,6 +638,8 @@ COND1 ::= COND1:c1 OR:a COND2:c2
           {:
             //Node cond1 = new Node("OPERACION OR");
             Node cond1 = new Node("OR", ((String) a));
+            cond1.linea = aleft;
+            cond1.columna = aright;
             cond1.addNode(c1);
             cond1.addNode(c2);
             RESULT = cond1;
@@ -634,6 +654,8 @@ COND1 ::= COND1:c1 OR:a COND2:c2
 COND2 ::= COND2:c1 AND:a COND3:c2 
           {:
             Node cond2 = new Node("AND", ((String) a));
+            cond2.linea = aleft;
+            cond2.columna = aright;
             cond2.addNode(c1);
             cond2.addNode(c2);
             RESULT = cond2;
@@ -660,7 +682,7 @@ COND3 ::= COND4:c4 ABREPAR CONDICION:c CIERRAPAR
           | ID:i ACCEDERM:m
           {:
             //Node op2 = new Node("VALOR OPERACION");
-            Node cond3 = new Node("ID", ((String) i));
+            Node cond3 = new Node("ID", ((String) i), ileft, iright);
             cond3.addNode(m);
             RESULT = cond3;
           :}
@@ -867,7 +889,7 @@ VALORO ::= VALOR:m
 LLAMADO ::= ID:i ABREPAR PARAMS:o CIERRAPAR FINLINE
             {:
                 Node llamado = new Node("LLAMADA FUNCION");
-                llamado.addNode(new Node("ID", ((String) i)));
+                llamado.addNode(new Node("ID", ((String) i), ileft, iright));
                 //llamado.addNode(new Node("ABREPAR", "("));
                 llamado.addNode(o);
                 //llamado.addNode(new Node("CIERRAPAR", ")"));

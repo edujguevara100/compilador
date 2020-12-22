@@ -12,14 +12,17 @@ func int _pruebaoptions(char _u) begin
             print(_u);
         }
     end options
+    return 5;
 end func
 func int_main() begin
     int _c = 5;
-    loop (_c > 0) begin
+    loop (_c > 5) begin
         print(_c);
         print("\n");
         _c = _c - 1;
     end loop
     char _o = 'x';
-    _pruebaoptions(_o);
+    _c = 5 * 5 + _pruebaoptions(_o);
+    print("\n");
+    print(_c);
 end main 
