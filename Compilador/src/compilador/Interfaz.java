@@ -327,7 +327,7 @@ public class Interfaz extends javax.swing.JFrame {
                                 if (tipo_valoro(n.hijos.get(0)).equals("int")) {
                                     return t.substring(t.indexOf("_") + 1, t.indexOf("{"));
                                 } else {
-                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros."
+                                    semantico += "Error, los indices del arreglo: " + n.valor + " deben de ser enteros."
                                             + " Linea " + n.linea + ":" + n.columna + "\n";
                                 }
                             }
@@ -337,14 +337,14 @@ public class Interfaz extends javax.swing.JFrame {
                                         && tipo_valoro(n.hijos.get(0).hijos.get(1)).equals("int")) {
                                     return t.substring(t.indexOf("_") + 1, t.indexOf("{"));
                                 } else {
-                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros"
+                                    semantico += "Error, los indices del arreglo: " + n.valor + " deben de ser enteros"
                                             + " Linea " + n.linea + ":" + n.columna + "\n";
                                 }
                             } else {
                                 if (tipo_valoro(n.hijos.get(0)).equals("int")) {
                                     return "array_" + t.substring(t.indexOf("_") + 1);
                                 } else {
-                                    semantico += "Error, los indices del arreglo:" + n.valor + "deben de ser enteros."
+                                    semantico += "Error, los indices del arreglo: " + n.valor + " deben de ser enteros."
                                             + " Linea " + n.linea + ":" + n.columna + "\n";
                                 }
                             }

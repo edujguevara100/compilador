@@ -6,6 +6,9 @@ func int _potencia(int _m, int _n) begin
 end func
 func int_main() begin
         int _a, _b;
+        matrix_int{1,3} _mat; 
+        _mat[0,0] = 3;
+        _a = _mat[0,0];
         print("Introduzca un numero:\n");
         read _a;
         print("Introduzca otro numero:\n");
